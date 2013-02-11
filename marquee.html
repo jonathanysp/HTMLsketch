@@ -1,0 +1,359 @@
+<html>
+<title>LADS Drawing Tool</title>
+<head>
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css"/>
+    <style>
+	body{
+	    position: relative;
+	    background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#fff));
+	}
+	div{
+	    clear: left;
+	}
+	#canvas{
+	    width: 500px;
+	    height: 500px;
+	    float:left;
+	    cursor: crosshair;
+	    background-color: #bbb;
+	    border-width:2px;
+	    border-color:black;
+	    }
+	.slider { 
+	    margin: 10px;
+	    width: 100px;
+	    }
+	    
+    </style>
+    <script src = "jquery.js"></script>
+    <script src = "raphael.js"></script>
+    <script src = "jquery-ui/js/jquery-ui-1.8.18.custom.min.js"></script>
+</head>
+<body>
+<div class = "outer" >
+    <div class = "inner">
+	<form>
+	    <div id="radio">
+		<input type="radio" id="pen" name="radio" checked="checked" onclick="setmode(0)"/><label for="pen">Pen Tool</label></label>
+		<input type="radio" id="rectangle" name="radio" onclick="setmode(1)"/><label for="rectangle">Rectangle Tool</label></label>
+		<input type="radio" id="spotlight" name="radio" onclick="setmode(2)"/><label for="spotlight">Spotlight Tool</label></label>
+		<input type="radio" id="eraser" name="radio" onclick="setmode(3)"/><label for="eraser">Eraser Tool</label></label>
+		<input type="radio" id="manipulate" name="radio" onclick="setDraggable(true)"/><label for="manipulate">Manipulate</label>
+		<button onclick="clearAll()">Clear Canvas</button>
+	    </div>
+	</form>
+    </div>
+    <div class = "slider" id="strokeWidth"></div>
+    <div class = "slider" id="opacity"></div>
+    <div class = "inner" id="canvas"></div>
+</div>
+
+<script>
+    var paper = Raphael("canvas","100%","100%");
+    var click = false;
+    var objects = [];
+    var ml = [];
+    var xy = [];
+    var paths = [];
+    var pathObjects = [];
+    var rectX;
+    var rectY;
+    var width;
+    var height;
+    var newrect;
+    var spot;
+    var mode = 0;
+    var drawing;
+    var originalWidth = $("#canvas").width();
+    var strokeWidth = 5;
+    var opacity = 1;
+    $("#canvas").resizable({
+	aspectRatio:$("#canvas").width()/$("#canvas").height(),
+	resize: function(e,ui){
+	    newWidth = ui.size.width;
+	    scale = newWidth/originalWidth;
+	    resizeObjects(scale);
+	    originalWidth = newWidth;
+	}
+    });
+    //sets default disabled resize
+    $("#canvas")
+	.resizable({disabled: true})
+	.css({opacity: 1});
+    
+    $("#canvas").mousedown(function(e){
+	if(mode === 4){
+	    return
+	}
+	click = true;
+	switch(mode) {
+	case 0:
+	    ml.push('M');
+	    xy.push([e.offsetX,e.offsetY]);
+	    break;
+	case 1:
+	    rect = createRect();
+	    rectX = e.offsetX;
+	    rectY = e.offsetY;
+	    break;
+	case 2:
+	    spot = createSpot();
+	    rectX = e.offsetX;
+	    rectY = e.offsetY;
+	    break;
+	case 3:
+	    erase([e.offsetX,e.offsetY]);
+	    break;
+	}
+    }).mouseup(function(){
+	if(mode === 4){
+	    return
+	}
+	click = false;
+    }).mouseleave(function(){
+	if(mode === 4){
+	    return
+	}
+	if(click === true){
+	    click = false;
+	}
+    }).mousemove(function(e){
+	if(mode === 4){
+	    return
+	}
+	$("#canvas").css('cursor','crosshair');
+	if(click === false)
+	    return;
+	switch(mode){
+	case 0:
+	    ml.push('L');
+	    xy.push([e.offsetX,e.offsetY]);
+	    drawPaths();
+	    break;
+	case 1:	
+	    updateRect(rect, rectX, rectY, e.offsetX, e.offsetY);
+	    break;
+	case 2:
+	    updateSpot(spot, rectX, rectY, e.offsetX, e.offsetY);
+	    break;
+	case 3:
+	    erase([e.offsetX,e.offsetY]);
+	    break;
+	}
+    }).hover(function(e){
+	$("#canvas").css('cursor', "pointer")
+	});
+    
+    function setmode(new_mode){
+	mode = new_mode;
+	if(mode < 4){
+	    setDraggable(false);
+	}
+	console.log("mode set to: " + mode);
+    };
+       
+    function drawPaths(){
+	var paths;
+	//removes all objects in pathObjects to be redrawn
+	var len = pathObjects.length;
+	for(var i = 0; i < pathObjects.length; i++){
+	    pathObjects[i].remove();
+	}
+	for(var i = 0; i < len; i++){
+	    pathObjects.shift();
+	}
+	for(var i = 0; i < ml.length; i ++){
+	    if(ml[i] !== 'X'){
+		paths += ml[i] + xy[i][0] + ',' + xy[i][1];;
+	    }
+	}
+	if(paths.length > 0){
+	    var path = paths.split('M');
+	    //console.log(path);
+	    //console.log(path.length-1);
+	}
+	for(var i = 1; i < path.length; i++){
+	    var drawing = paper.path('M'+path[i]);
+	    drawing.attr({
+	    "stroke-width": strokeWidth,
+	    "stroke-opacity": opacity,
+	    "stroke-linejoin":"round",
+	    "stroke-linecap":"round"
+	    })
+	    pathObjects.push(drawing);
+	}
+	//console.log(pathObjects.length);	    
+    }
+    
+    function clearPaths(){
+	while(pathObjects.length !== 0){
+	    for(var i = 0; i < pathObjects.length; i++){
+		if(pathObjects[i].attrs !== null){
+		    pathObjects[i].remove();
+		}
+		pathObjects.shift();
+	    }
+	}
+    }
+    
+    function createRect(){
+	var rect = paper.rect(0,0,0,0);
+	rect.attr({
+	    "stroke-width": strokeWidth,
+	    "stroke-opacity": opacity,
+	    "fill-opacity": opacity
+	});
+	objects.push(rect);
+	return rect;
+    }
+    
+    function updateRect(rect, startX, startY, endX, endY){
+	rect.attr({
+	    x: Math.min(startX, endX),
+	    y: Math.min(startY, endY),
+	    width: Math.abs(endX-startX),
+	    height: Math.abs(endY-startY),
+	})
+    }
+    
+    function createSpot(){
+	var spotArray = []
+	for(i = 0; i<4; i++){
+	    spotArray.push(
+		paper.rect(0,0,0,0)
+		.attr({
+		    "stroke-width": 5,
+		    fill: "#000",
+		    "fill-opacity": 0.5,
+		    "stroke-opacity": 0
+		})
+	    );
+	}
+	for(i = 0; i<4; i++){
+	    objects.push(spotArray[i]);
+	}
+	return spotArray;
+    }
+    
+    function updateSpot(array, startX, startY, endX, endY){
+	var canvasWidth = $("#canvas").width();
+	var canvasHeight = $("#canvas").height();
+	array[0].attr({
+	    x: 0,
+	    y: 0,
+	    width: canvasWidth,
+	    height: Math.min(endY,startY),
+	});
+	array[1].attr({
+	    x: 0,
+	    y: Math.min(endY,startY),
+	    width: Math.min(startX, endX),
+	    height: Math.abs(endY-startY)
+	});
+	array[2].attr({
+	    x: Math.max(endX, startX),
+	    y: Math.min(endY, startY),
+	    width: canvasHeight - Math.max(startX, endX),
+	    height: Math.abs(endY-startY)
+	});
+	array[3].attr({
+	    x: 0,
+	    y: Math.max(endY, startY),
+	    width: canvasWidth,
+	    height: canvasHeight - Math.max(endY, startY)
+	});
+    }
+    
+    function erase(location){
+	var range = 10
+	//console.log("searching " + location[0] + ',' + location[1]);
+	for(var i = 0; i < xy.length; i++){
+	    if(location[0] - range <= xy[i][0] && xy[i][0] <= location[0] + range){
+		if(location[1] - range <= xy[i][1] && xy[i][1] <= location[1] + range){
+		    console.log("MATCH FOUND");
+		    if(ml[i+1] === 'L'){
+			ml[i+1] = 'M';
+		    }
+		    ml.splice(i,1);
+		    xy.splice(i,1);
+		    
+		    //ml[i] = 'X';
+		    //if(ml[i+1] === 'L'){
+			//ml[i+1] = 'M';
+		    //}
+		    drawPaths();
+		}
+	    }
+	}
+    }
+    
+    function setDraggable(option){
+	if(option === true){
+	    $("#canvas").draggable({disabled: false});
+	    $("#canvas").resizable({disabled: false});
+	    $("#canvas").css({"border-style": "dashed"});
+	    setmode(4);
+	}
+	else{
+	    console.log("set not draggable");
+	    $("#canvas").draggable({disabled: true});
+	    $("#canvas").resizable({disabled: true});
+	    //CSS bug, sets undraggable opacity to 0.35
+	    $("#canvas").css({opacity: 1, "border-style": "none"});
+	}
+    }
+    
+    function resizeObjects(scale){
+	console.log("scaling");
+	for(var i = 0; i < objects.length; i++){
+	    objects[i].scale(scale,scale,0,0);
+	}
+	for(var i = 0; i < pathObjects.length; i++){
+	    pathObjects[i].scale(scale,scale,0,0);
+	}
+	for(var i = 0; i < xy.length; i++){
+	    xy[i][0] = xy[i][0] * scale;
+	    xy[i][1] = xy[i][1] * scale;
+	}
+    }
+    
+    function clearAll(){
+	var r = confirm("Clear all?");
+	if(r === true){
+	    for(var i = 0; i < objects.length; i++){
+		objects[i].remove();
+		objects.shift();
+	    }
+	    for(var i = 0; i < objects.length; i++){
+		pathObjects[i].remove();
+		pathObjects.shift();
+	    }
+	}
+    }
+    
+    $("#strokeWidth").slider({
+	animate: "normal",
+	max: 20,
+	min: 5,
+	range: "min",
+	step: 1,
+	stop:function(event,ui){
+	    strokeWidth = ui.value
+	}
+	});
+	
+    $("#opacity").slider({
+	animate: "normal",
+	max: 1,
+	min: 0,
+	range: "min",
+	step: 0.1,
+	stop:function(event,ui){
+	    opacity = 1 - ui.value
+	}
+	});
+        
+</script>
+
+</body>
+</html>
