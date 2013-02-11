@@ -16,33 +16,31 @@
 		}
 		#layer_picker{
 			position:absolute;
-			top:510px;
+			top:530px;
 		}
 		.options{
 			position:absolute;
-			top: 510px;
+			top: 530px;
 			left: 150px;
 		}
 	</style>
 	<script>
 		window.onload = load;
 		
-		function load(){
+		function load()
+		{
 			layer1 = new rect_tool("rect");
 			layer2 = new ellipse_tool("ellipse");
 			layer3 = new pen_tool("pen");
 			
 			switch_layers = function(index){
 				$(".layer").each(function(i){
-					//console.log($(this).attr('id')+":"+(3-((i+index)%3)));
 					$(this).css("z-index",3-((i+index)%3));
 				});
 			};
 			
 			layers = function(){
-				$(".layer").each(function(i){
-					//console.log($(this).attr('id')+":"+$(this).css('z-index'));
-				});
+				$(".layer").each(function(i){});
 			};
 			
 			setEraser = function(option){
@@ -52,7 +50,7 @@
 			$("#ellipse_options").css('display','none');
 			$("#rect_options").css('display','none');
 			$(".layer_pick").click(function(){
-				switch($('input[name=layer]:checked').val())
+				switch($('input[name="layer"]:checked').val())
 				{
 				case "pen":
 					$("#pen_options").slideDown("fast");
@@ -75,9 +73,14 @@
 	</script>
 </head>
 <body>
-<div id="rect" class="layer" checked="checked" style="border:1px solid blue; z-index:0"></div>
-<div id="ellipse" class="layer" style="border:1px solid red; z-index:1"></div>
-<div id="pen" class="layer" style="border:1px solid black; z-index:2"></div>
+<div id="rect" class="layer" checked="checked" style="border:10px solid blue; z-index:0"></div>
+<!-- <script type="text/javascript">
+    var bord=document.getElementById("rect").style.border;
+    alert("bord = "+bord[0]);
+</script> -->
+    
+<div id="ellipse" class="layer" style="border:10px solid red; z-index:1"></div>
+<div id="pen" class="layer" style="border:10px solid black; z-index:2"></div>
 
 <div id="layer_picker">
 	<input checked='checked' onclick='switch_layers(1)' type='radio' name='layer' class='layer_pick' value='pen'/>Pen Tool<br/>

@@ -32,10 +32,12 @@ function rect_tool(id){
 		if(e.data.click === true && e.data.drawn == false){
 		    //e.offsetX = undefined workaround for FF
 		    //DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 		    if(!e.offsetX){
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-			e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+		        var bord=document.getElementById("rect").style.border;
+		        var bordpx=parseInt(bord);
+			e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.update(e.data.rectX,e.data.rectY,e.offsetX,e.offsetY);
 		}
@@ -52,10 +54,12 @@ function rect_create(e){
 	this.rect.drag(this.move, this.start, this.stop, this, this, this);
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	    var bord=document.getElementById("rect").style.border;
+        var bordpx=parseInt(bord);
+	e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+	e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	this.rectX = e.offsetX;
 	this.rectY = e.offsetY;
@@ -71,7 +75,7 @@ function rect_update(startX, startY, endX, endY){
 function rect_start(){
 	this.rect.ox = this.rect.attr("x");
 	this.rect.oy = this.rect.attr("y");
-	this.rect.animate({opacity:.25},500,">");
+	this.rect.animate({opacity:.25},500,"<>");
 };
 function rect_move(dx,dy){
 	this.rect.attr({
@@ -80,7 +84,7 @@ function rect_move(dx,dy){
 	});
 };
 function rect_stop(){
-	this.rect.animate({opacity: 1}, 500, ">");
+	this.rect.animate({opacity: 1}, 500, "<>");
 };
 function rect_delete(){
 	this.rect.remove();
@@ -119,10 +123,12 @@ function ellipse_tool(id){
 	    if(e.data.click === true && e.data.drawn === false){
 		//e.offsetX = undefined workaround for FF
 		//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-		//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+		//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 		if(!e.offsetX){
-		    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-		    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+		    var bord=document.getElementById("ellipse").style.border;
+	        var bordpx=parseInt(bord);
+		    e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+		    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		}
 		e.data.update(e.data.startX, e.data.startY, e.offsetX, e.offsetY);
 	    }
@@ -139,10 +145,12 @@ function ellipse_create(e){
 	this.ellipse.drag(this.move, this.start, this.stop, this, this, this);
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	    var bord=document.getElementById("ellipse").style.border;
+        var bordpx=parseInt(bord);
+	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	this.startX = e.offsetX;
 	this.startY = e.offsetY;
@@ -196,10 +204,12 @@ function pen_tool(id){
 		if(e.data.erase_mode){
 		    //e.offsetX = undefined workaround for FF
 		    //DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 		    if(!e.offsetX){
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-			e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+		    var bord=document.getElementById("pen").style.border;
+		    var bordpx=parseInt(bord);
+			e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.erase([e.offsetX,e.offsetY]);
 		}
@@ -216,10 +226,12 @@ function pen_tool(id){
 			if(e.data.erase_mode == true){
 			    //e.offsetX = undefined workaround for FF
 			    //DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-			    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+			    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 			    if(!e.offsetX){
-			    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-			    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+			    var bord=document.getElementById("pen").style.border;
+    		    var bordpx=parseInt(bord);
+    			e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+    			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 			    }
 			    e.data.erase([e.offsetX,e.offsetY]);
 			}
@@ -234,20 +246,24 @@ function pen_down(e){
 	e.data.ml.push('M');
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	    var bord=document.getElementById("pen").style.border;
+        var bordpx=parseInt(bord);
+	e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+	e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}	
 	e.data.xy.push([e.offsetX,e.offsetY]);
 }
 function pen_move(e){
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	        var bord=document.getElementById("pen").style.border;
+	        var bordpx=parseInt(bord);
+		e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+		e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	e.data.ml.push('L');
 	e.data.xy.push([e.offsetX,e.offsetY]);
