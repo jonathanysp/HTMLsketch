@@ -45,11 +45,22 @@ function rect_tool(id){
 };
 function rect_create(e){
 	this.rect = this.paper.rect(0,0,0,0);
+	var strokecolor=document.getElementById("strokecolor").value;
+	var fillcolor=document.getElementById("fillcolor").value;
+	if(strokecolor.length!=6)
+	{
+	    strokecolor="000000";
+	}
+	if(fillcolor.length!=6)
+	{
+	    fillcolor="ffffff";
+	}
 	this.rect.attr({
-		"stroke-width":3,
+		"stroke-width":"3",
 		"stroke-opacity":1,
-		"fill-opacity":0,
-		"fill":"white"
+		"stroke":"#"+strokecolor,
+		"fill-opacity":.5,
+		"fill":"#"+fillcolor
 	});
 	this.rect.drag(this.move, this.start, this.stop, this, this, this);
 	//e.offsetX = undefined workaround for FF
@@ -136,11 +147,22 @@ function ellipse_tool(id){
 };
 function ellipse_create(e){
 	this.ellipse = this.paper.ellipse(0,0,0,0);
+	var strokecolor=document.getElementById("strokecolor").value;
+	var fillcolor=document.getElementById("fillcolor").value;
+	if(strokecolor.length!=6)
+	{
+	    strokecolor="000000";
+	}
+	if(fillcolor.length!=6)
+	{
+	    fillcolor="ffffff";
+	}
 	this.ellipse.attr({
-		"stroke-width": 3,
-		"stroke-opacity": 1,
-		"fill-opacity": 0,
-		"fill":"white"
+		"stroke-width":"3",
+		"stroke-opacity":1,
+		"stroke":"#"+strokecolor,
+		"fill-opacity":.5,
+		"fill":"#"+fillcolor
 	});
 	this.ellipse.drag(this.move, this.start, this.stop, this, this, this);
 	//e.offsetX = undefined workaround for FF
