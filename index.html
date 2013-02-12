@@ -32,6 +32,11 @@
 		    margin:5px;
 		    width:50px;
 		}
+		#clear_all_div{
+		    position:absolute;
+		    top:530px;
+		    left:450px;
+		}
 	</style>
 	<script>
 		window.onload = load;
@@ -41,6 +46,35 @@
 			layer1 = new rect_tool("rect");
 			layer2 = new ellipse_tool("ellipse");
 			layer3 = new pen_tool("pen");
+			
+			
+			/*
+			There's something funky with removing a layer if it hasn't
+			already been drawn on, so layer_order keeps track of the
+			current layer (in position 0) and any time a layer's radio
+			button is clicked, reset_array inserts the number of the layer
+			at the beginning of layer_order. This way, we can always
+			remove all drawn-on layers first in remove_all.
+			*/
+			
+			var layer_order=new Array(3,2,1);
+			
+			reset_array = function(key){
+			    var ind=layer_order.indexOf(key);
+			    layer_order.splice(ind,1);
+			    layer_order.splice(0,0,key);
+			}
+			
+			remove_all = function(){
+			    var i;
+			    var len=layer_order.length;
+			    for(i=0;i<len;i++)
+			    {
+			        var layer=eval("layer"+layer_order[i]);
+			        layer.remove();
+			        
+			    }
+			}
 			
 			switch_layers = function(index){
 				$(".layer").each(function(i){
@@ -89,13 +123,13 @@
 <div id="pen" class="layer" style="border:10px solid black; z-index:2"></div>
 
 <div id="layer_picker">
-	<input type='radio' onclick='switch_layers(1)'
+	<input type='radio' onclick='switch_layers(1),reset_array(3)'
 	       name='layer' class='layer_pick' value='pen' checked='checked' />Pen Tool
 	<br/>
-	<input type='radio' onclick='switch_layers(2)'
+	<input type='radio' onclick='switch_layers(2),reset_array(2)'
 	       name='layer' class='layer_pick' value='ellipse' />Ellipse Tool
 	<br/>
-	<input type='radio' onclick='switch_layers(0)'
+	<input type='radio' onclick='switch_layers(0),reset_array(1)'
 	       name='layer' class='layer_pick' value='rect' />Rectangle Tool
 </div>
 
@@ -118,12 +152,16 @@
 </div>
 
 <div id="color_options" class="color_options">
-    Stroke color: <input type="color" id="strokecolor" class="color_option"
+    Stroke color: <input type="text" id="strokecolor" class="color_option"
                          name="strokecolor" value="000000" />
     <br />
     &nbsp&nbsp&nbsp&nbsp
-    Fill color: <input type="color" id="fillcolor" class="color_option"
+    Fill color: <input type="text" id="fillcolor" class="color_option"
                        name="fillcolor" value="ffff00" />
+</div>
+
+<div id="clear_all_div">
+    <button type="button" onclick='remove_all()'>Clear All</button>
 </div>
 </body>
 </html>

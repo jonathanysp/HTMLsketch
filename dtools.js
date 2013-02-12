@@ -36,7 +36,7 @@ function rect_tool(id){
 		    if(!e.offsetX){
 		        var bord=document.getElementById("rect").style.border;
 		        var bordpx=parseInt(bord);
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+			e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.update(e.data.rectX,e.data.rectY,e.offsetX,e.offsetY);
@@ -69,7 +69,7 @@ function rect_create(e){
 	if(!e.offsetX){
 	    var bord=document.getElementById("rect").style.border;
         var bordpx=parseInt(bord);
-	e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+	e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 	e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	this.rectX = e.offsetX;
@@ -138,7 +138,7 @@ function ellipse_tool(id){
 		if(!e.offsetX){
 		    var bord=document.getElementById("ellipse").style.border;
 	        var bordpx=parseInt(bord);
-		    e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+		    e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 		    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		}
 		e.data.update(e.data.startX, e.data.startY, e.offsetX, e.offsetY);
@@ -171,7 +171,7 @@ function ellipse_create(e){
 	if(!e.offsetX){
 	    var bord=document.getElementById("ellipse").style.border;
         var bordpx=parseInt(bord);
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+	    e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	this.startX = e.offsetX;
@@ -230,7 +230,7 @@ function pen_tool(id){
 		    if(!e.offsetX){
 		    var bord=document.getElementById("pen").style.border;
 		    var bordpx=parseInt(bord);
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+			e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.erase([e.offsetX,e.offsetY]);
@@ -252,7 +252,7 @@ function pen_tool(id){
 			    if(!e.offsetX){
 			    var bord=document.getElementById("pen").style.border;
     		    var bordpx=parseInt(bord);
-    			e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+    			e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
     			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 			    }
 			    e.data.erase([e.offsetX,e.offsetY]);
@@ -270,9 +270,9 @@ function pen_down(e){
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
 	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    var bord=document.getElementById("pen").style.border;
+        var bord=document.getElementById("pen").style.border;
         var bordpx=parseInt(bord);
-	e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+	e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 	e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}	
 	e.data.xy.push([e.offsetX,e.offsetY]);
@@ -284,7 +284,7 @@ function pen_move(e){
 	if(!e.offsetX){
 	        var bord=document.getElementById("pen").style.border;
 	        var bordpx=parseInt(bord);
-		e.offsetX = (e.pageX - $(e.delegateTarget).position().top-bordpx);
+		e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
 		e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	e.data.ml.push('L');
@@ -315,9 +315,17 @@ function pen_draw(){
 		this.pathArray = this.paths.split('M')
 	}
 	//console.log("split into paths");
+	
+	var strokecolor=document.getElementById("strokecolor").value;
+	if(strokecolor.length!=6)
+	{
+	    strokecolor="000000";
+	}
+	
 	for(var i = 1; i < this.pathArray.length; i++){
 		this.pathObjects[i-1] = this.paper.path('M'+this.pathArray[i]);
 		this.pathObjects[i-1].attr({
+		    "stroke":"#"+strokecolor,
 			"stroke-width": 3,
 			"stroke-opacity": 1,
 			"stroke-linejoin":"round",
