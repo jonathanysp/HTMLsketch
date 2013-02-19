@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Index3</title>
+<head>
+	<meta charset="utf-8">
+	<script src="raphael.js"></script>
+	<script src="jquery.js"></script>
+	<!--<script src="dtools3.js"></script>-->
+	<style>
+		#canv
+		{
+			position:absolute;
+			left:10px;
+			top:25px;
+			height:500px;
+			width:500px;
+			border:10px solid blue;
+			z-index:0
+		}
+		#clear_button
+		{
+		    position:absolute;
+		    top:470px;
+		    left:550px;
+		    width:80px;
+		    height:40px;
+		}
+		.color_options
+		{
+		    position:absolute;
+		    top:530px;
+		    left:700px;
+		}
+		.color_option
+		{
+		    margin:5px;
+		    width:50px;
+		}
+		#ellipse_button
+		{
+		    position:absolute;
+		    top:20px;
+		    left:690px;
+		    width:80px;
+		    height:40px;
+		}
+		.options
+		{
+			position:absolute;
+			top:600px;
+			left:600px;
+		}
+		#pen_button
+		{
+		    position:absolute;
+		    top:20px;
+		    left:550px;
+		    padding-top:4px;
+		    padding-left:3px;
+		    width:40px;
+		    height:40px;
+		}
+		#rect_button
+		{
+		    position:absolute;
+		    top:20px;
+		    left:600px;
+		    width:80px;
+		    height:40px;
+		}
+		#test_layers_div
+		{
+		    position:absolute;
+		    top:200px;
+		    left:700px;
+		}
+	</style>
+	<script>
+		window.onload = load;
+		var paper;
+		
+		function add_attributes(elt)
+		{
+		    //var strokewidth=document.getElementById("strokewidth");
+		    //var strokecolor=document.getElementById("strokecolor");
+		    //var fillcolor=document.getElementById("fillcolor");
+		    //var fillopacity=document.getElementById("fillopacity");
+		    //$("#canvas").mousedown();
+		    var canv=document.getElementById("canv");
+		    var gl;
+		    var resize=0; //if 1, we are in zoom mode rather than pan mode
+		    var noglow=0; //if 1, glowing is disabled
+		    var origmousex;
+		    var origmousey;
+		    elt.mouseover(function(){
+		        if(!noglow)
+		        {
+		            gl=elt.glow({"color":"#33ff00"});
+	            }
+		    })
+		    elt.mouseout(function(){
+		        gl.remove();
+		    })
+		    elt.attr({
+		        "stroke-width":5,
+		        "stroke":"#222222",
+		        "fill":"#ffff00",
+		        "fill-opacity":.5
+		    });
+		    
+		    //drag(move, start, stop,...)
+		    elt.drag(function(dx,dy,mousex,mousey){
+		        this.toFront();
+		        if(!resize)
+		        {
+		            //drag an element
+		            var currx=parseInt(this.data("currx"));//x position at the start of drag
+    		        var curry=parseInt(this.data("curry"));
+        		    var xpos=currx+dx; //to get new x position, just add dx
+        		    var ypos=curry+dy;
+    		        this.attr({
+    		            cx:xpos+parseInt(this.data("curr_rx")), //xcenter is left+xradius
+    		            cy:ypos+parseInt(this.data("curr_ry")), //ycenter is top+yradius
+    		            x:xpos,
+    		            y:ypos
+    		        });
+    		    }
+    		    else
+    		    {
+    		        //resize an element
+    		        var bbox=this.getBBox();
+    		        this.attr({
+    		            cx:bbox.x+bbox.width*0.5+(mousex-origmousex)*0.5,
+    		            cy:bbox.y+bbox.height*0.5+(mousey-origmousey)*0.5,
+    		            rx:bbox.width/2.0+(mousex-origmousex)*0.5,
+    		            ry:bbox.height/2.0+(mousey-origmousey)*0.5,
+    		            width:bbox.width+mousex-origmousex,
+    		            height:bbox.height+mousey-origmousey
+    		        });
+    		    }
+    		    origmousex=mousex;
+    		    origmousey=mousey;
+		    },function(x,y){
+		        origmousex=x;
+		        origmousey=y;
+		        var bbox=this.getBBox();
+		        document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> bbox.x = "+(bbox.x)+"<br /> y = "+y+"<br /> bbox.y = "+(bbox.y);
+		        if((x>(bbox.x+bbox.width*0.75)) && (y>(bbox.y+bbox.height*0.75)))
+                {
+                    resize=1;
+                }
+		        gl.remove();
+		        noglow=1;
+		        this.animate({opacity:.25},500,"<>");
+		    },function(){
+		        this.data("currx",this.getBBox().x); //reset data using bounding box coords
+		        this.data("curry",this.getBBox().y);
+		        this.data("curr_rx",this.getBBox().width/2.0);
+		        this.data("curr_ry",this.getBBox().height/2.0);
+		        noglow=0;
+		        resize=0;
+		        this.animate({opacity:1},500,"<>");
+		    });   
+		}
+		
+		function add_rectangle()
+		{
+		    var x=Math.floor(Math.random()*300);
+		    var y=Math.floor(Math.random()*300);
+		    rect=paper.rect(x,y,50,50);
+		    rect.data("currx",x);
+		    rect.data("curry",y);
+		    add_attributes(rect);
+		}
+		
+		function add_ellipse()
+		{
+		    var x=Math.floor(Math.random()*300);
+		    var y=Math.floor(Math.random()*300);
+		    var rx=20+Math.floor(Math.random()*40);
+		    var ry=20+Math.floor(Math.random()*40);
+		    ellipse=paper.ellipse(x,y,rx,ry);
+		    ellipse.data("currx",ellipse.getBBox().x);
+		    ellipse.data("curry",ellipse.getBBox().y);
+		    ellipse.data("curr_rx",rx);
+		    ellipse.data("curr_ry",ry);
+		    add_attributes(ellipse);
+		}
+		
+		function load()
+		{
+		    paper=Raphael(document.getElementById("canv"),500,500);
+		    add_rectangle();
+		    add_ellipse();
+            set_up_icons();
+		};
+		
+		function remove_all()
+		{
+		    paper.remove();
+		    paper=Raphael(document.getElementById("canv"),500,500);
+		}
+		
+		function start_path()
+		{
+		    var p="";
+		    set_up_path(p);
+		}
+		
+		function set_up_icons()
+		{
+		   var paper=Raphael(document.getElementById("pen_button"),35,35); paper.path("M13.587,12.074c-0.049-0.074-0.11-0.147-0.188-0.202c-0.333-0.243-0.803-0.169-1.047,0.166c-0.244,0.336-0.167,0.805,0.167,1.048c0.303,0.22,0.708,0.167,0.966-0.091l-7.086,9.768l-2.203,7.997l6.917-4.577L26.865,4.468l-4.716-3.42l-1.52,2.096c-0.087-0.349-0.281-0.676-0.596-0.907c-0.73-0.529-1.751-0.369-2.28,0.363C14.721,6.782,16.402,7.896,13.587,12.074zM10.118,25.148L6.56,27.503l1.133-4.117L10.118,25.148zM14.309,11.861c2.183-3.225,1.975-4.099,3.843-6.962c0.309,0.212,0.664,0.287,1.012,0.269L14.309,11.861z").attr({fill: "#000", stroke: "none"});
+	    }
+		
+		function set_up_path(pathstring)
+		{
+		    $("#canv").mousedown(this,function(e){
+        		    e.data.pen_down(e);
+        	    })
+        	    .mousemove(this, function(e){
+        				e.data.pen_move(e);
+        		});
+		}
+		
+	</script>
+</head>
+<body>
+<div id="canv"></div>
+
+<button id="pen_button" class="tool_button" type="button"
+        onclick="start_path()">pen</button>
+        
+<button id="rect_button" class="tool_button" type="button"
+        onclick="add_rectangle()">+ rect</button>
+
+<button id="ellipse_button" class="tool_button" type="button"
+        onclick="add_ellipse()">+ ellipse</button>
+
+<button id="clear_button" type="button"
+        onclick='remove_all()'>Clear All</button>
+
+<div id="test_layers_div"><div>
+</body>
+</html>
