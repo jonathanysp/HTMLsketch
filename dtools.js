@@ -22,6 +22,7 @@ function rect_tool(id){
 		//console.log("mouse up!");
 		e.data.click = false;
 		e.data.drawn = true;
+	
 	}).mouseleave(this,function(e){
 		//disabled becuase of IE bug which thinks
 		//hitting raphael objects is a mouseleave
@@ -36,8 +37,8 @@ function rect_tool(id){
 		    if(!e.offsetX){
 		        var bord=document.getElementById("rect").style.border;
 		        var bordpx=parseInt(bord);
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
-			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
+			    e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+			    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.update(e.data.rectX,e.data.rectY,e.offsetX,e.offsetY);
 		}
@@ -260,7 +261,7 @@ function pen_tool(id){
 			else{
 				e.data.pen_move(e)
 			}
-		}
+		} 
 	});
 };
   
