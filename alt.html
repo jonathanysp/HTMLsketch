@@ -259,18 +259,27 @@
 		    elt.mouseover(function(){
 		        if(!noglow && (mode==3))
 		        {
-		            gl=elt.glow({"width":15,"color":"#33ff00","opacity":.8});
+		            gl=elt.glow({"width":10,"color":"#33ff00","opacity":.8});
 	            }
-		    })
+		    });
 		    elt.mouseout(function(){
 		        gl.remove();
-		    })
-		    elt.attr({
-		        "stroke-width":5,
-		        "stroke":"#222222",
-		        "fill":"#ffff00",
-		        "fill-opacity":.5
 		    });
+		    elt.attr({
+		        "stroke-width":1,
+		        "stroke":"#222222",
+		        "fill":"#ffffff",
+		        "fill-opacity":"0"
+		    });
+		    var mset=paper.set();
+		    mset.push(marq.rn,marq.re,marq.rs,marq.rw);
+		    mset.attr({
+		        "stroke-width":1,
+		        "stroke":"#222222",
+		        "fill":"#222222",
+		        "fill-opacity":".8"
+		    });
+		    
 		    
 		    //drag(move, start, stop,...)
 		    elt.drag(function(dx,dy,mousex,mousey){
@@ -452,36 +461,6 @@
                 m.rw.show();
                 m.rc.show();
             }
-        }
-
-        function updateSpot(array, startX, startY, endX, endY)
-        {
-    	var canvasWidth = $("#canvas").width();
-    	var canvasHeight = $("#canvas").height();
-    	array[0].attr({
-    	    x: 0,
-    	    y: 0,
-    	    width: canvasWidth,
-    	    height: Math.min(endY,startY),
-    	});
-    	array[1].attr({
-    	    x: 0,
-    	    y: Math.min(endY,startY),
-    	    width: Math.min(startX, endX),
-    	    height: Math.abs(endY-startY)
-    	});
-    	array[2].attr({
-    	    x: Math.max(endX, startX),
-    	    y: Math.min(endY, startY),
-    	    width: canvasHeight - Math.max(startX, endX),
-    	    height: Math.abs(endY-startY)
-    	});
-    	array[3].attr({
-    	    x: 0,
-    	    y: Math.max(endY, startY),
-    	    width: canvasWidth,
-    	    height: canvasHeight - Math.max(endY, startY)
-    	});
         }
 		
         function drawPaths()
@@ -743,6 +722,14 @@
     Ellipse fill opacity:        
     <input id="ellipse_fill_opacity" class="color_input" type="text"
             value=".5" />
+    <br />
+    Marquee fill:
+    <input id="ellipse_fill_opacity" class="color_input" type="text"
+            value="#222222" />
+    <br />
+    Marquee opacity:
+    <input id="ellipse_fill_opacity" class="color_input" type="text"
+            value=".8" />
 </div>
 
 <div id="mode_div">mode: shapes</div>
