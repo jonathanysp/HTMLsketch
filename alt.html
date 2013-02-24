@@ -221,8 +221,18 @@
 		            origmousex=x;
     		        origmousey=y;
     		        var bbox=this.getBBox();
-    		        document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> bbox.x = "+(bbox.x)+"<br /> y = "+y+"<br /> bbox.y = "+(bbox.y);
-    		        if((x>(bbox.x+bbox.width*0.75)) && (y>(bbox.y+bbox.height*0.75)))
+    		        resize=0;
+    		        var canvx=parseInt($("#canv").css("left"));
+    		        var canvbx=parseInt($("#canv").css("border-left"));
+    		        var canvy=parseInt($("#canv").css("top"));
+    		        var canvby=parseInt($("#canv").css("border-top"));
+    		        
+    		        document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> \
+    		        relevant x = "+(bbox.x+bbox.width+canvx+canvbx)+"<br /> y = "+y+"<br /> \
+    		        relevant y = "+(bbox.y+bbox.height+canvy+canvby)+"<br /> canvx = "+canvx+"\
+    		        <br /> canvbx = "+canvbx+"<br /> canvy = "+canvy+"\
+    		        <br /> canvby = "+canvby;
+    		        if((x>(bbox.x+bbox.width*0.75+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.75+canvy+canvby)))
                     {
                         resize=1;
                     }
@@ -266,7 +276,7 @@
 		        gl.remove();
 		    });
 		    elt.attr({
-		        "stroke-width":1,
+		        "stroke-width":0,
 		        "stroke":"#222222",
 		        "fill":"#ffffff",
 		        "fill-opacity":"0"
@@ -274,7 +284,7 @@
 		    var mset=paper.set();
 		    mset.push(marq.rn,marq.re,marq.rs,marq.rw);
 		    mset.attr({
-		        "stroke-width":1,
+		        "stroke-width":0,
 		        "stroke":"#222222",
 		        "fill":"#222222",
 		        "fill-opacity":".8"
@@ -290,23 +300,11 @@
 		            var bbox=this.getBBox();
     		        if(!resize)
     		        {
-    		            //drag an element
+    		            //drag an marquee -- need to update all relevant rectangles
     		            var currx=parseInt(this.data("currx"));//x position at the start of drag
         		        var curry=parseInt(this.data("curry"));
             		    var xpos=currx+dx; //to get new x position, just add dx
             		    var ypos=curry+dy;
-            		    // marq.rn.attr({
-            		    //                            height:ypos
-            		    //                        });
-            		    //                        marq.re.attr({
-            		    //                            width:w-xpos-bbox.width
-            		    //                        });
-            		    //                        marq.rs.attr({
-            		    //                            height:h-ypos-bbox.height
-            		    //                        });
-            		    //                        marq.rw.attr({
-            		    //                            width:xpos
-            		    //                        })
         		        this.attr({
         		            x:xpos,
         		            y:ypos
@@ -316,20 +314,24 @@
         		        });
         		        marq.re.attr({
         		            x:xpos+bbox.width,
-        		            width:w-(xpos+bbox.width)
+        		            y:ypos,
+        		            width:w-(xpos+bbox.width),
+        		            height:bbox.height
         		        });
         		        marq.rs.attr({
         		            y:ypos+bbox.height,
         		            height:h-(ypos+bbox.height)
         		        })
         		        marq.rw.attr({
-        		            width:xpos
+        		            y:ypos,
+        		            width:xpos,
+        		            height:bbox.height
         		        })
         		        
         		    }
         		    else
         		    {
-        		        //resize an element
+        		        //resize a marquee -- need to update all relevant rectangle
         		        this.attr({
         		            width:bbox.width+mousex-origmousex,
         		            height:bbox.height+mousey-origmousey
@@ -340,7 +342,11 @@
         		        });
         		        marq.re.attr({
         		            x:bbox.x+bbox.width+mousex-origmousex,
-        		            width:w-(bbox.x+bbox.width+mousex-origmousex)
+        		            width:w-(bbox.x+bbox.width+mousex-origmousex),
+        		            height:bbox.height+mousey-origmousey
+        		        })
+        		        marq.rw.attr({
+        		            height:bbox.height+mousey-origmousey
         		        })
         		    }
         		    origmousex=mousex;
@@ -353,8 +359,12 @@
 		            origmousex=x;
     		        origmousey=y;
     		        var bbox=this.getBBox();
+    		        var canvx=parseInt($("#canv").css("left"));
+    		        var canvbx=parseInt($("#canv").css("border-left"));
+    		        var canvy=parseInt($("#canv").css("top"));
+    		        var canvby=parseInt($("#canv").css("border-top"));
     		        document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> bbox.x = "+(bbox.x)+"<br /> y = "+y+"<br /> bbox.y = "+(bbox.y);
-    		        if((x>(bbox.x+bbox.width*0.75)) && (y>(bbox.y+bbox.height*0.75)))
+    		        if((x>(bbox.x+bbox.width*0.75+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.75+canvy+canvby)))
                     {
                         resize=1;
                     }
@@ -413,15 +423,15 @@
     	    var rn=paper.rect(0,0,w,topy);
     	    rn.data("currx",0);
     	    rn.data("curry",0);
-    	    var re=paper.rect(botx,0,w-botx,h);
+    	    var re=paper.rect(botx,topy,w-botx,boty-topy);
     	    re.data("currx",botx);
-    	    re.data("curry",0);
+    	    re.data("curry",topy);
     	    var rs=paper.rect(0,boty,w,h-boty);
     	    rs.data("currx",0);
     	    rs.data("curry",boty);
-    	    var rw=paper.rect(0,0,topx,h);
+    	    var rw=paper.rect(0,topy,topx,boty-topy);
     	    rw.data("currx",0);
-    	    rw.data("curry",0);
+    	    rw.data("curry",topy);
     	    var rc=paper.rect(topx,topy,botx-topx,boty-topy);
     	    rc.data("currx",topx);
     	    rc.data("curry",topy);
@@ -555,9 +565,13 @@
              }
             }).mousemove(function(e)
             {
-                if(mode)
+                if((mode==1) || (mode==2))
                 {
                     $("#canv").css('cursor','crosshair');
+                }
+                else
+                {
+                    $("#canv").css('cursor','pointer');
                 }
                 if(click === false)
                     return;
@@ -690,6 +704,10 @@
     Pen opacity:
     <input id="pen_opacity" class="color_input" type="text"
             value="1" />
+    <br />
+    Eraser width:
+    <input id="eraser_width" class="color_input" type="text"
+            value="5" />
     <br />
     Rectangle stroke color:
     <input id="rect_stroke_color" class="color_input" type="text"
