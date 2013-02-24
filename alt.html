@@ -164,6 +164,11 @@
 		    var noglow=0; //if 1, glowing is disabled
 		    var origmousex;
 		    var origmousey;
+		    var strokeWidth=document.getElementById("shape_stroke_width").value;
+		    var strokeColor=document.getElementById("shape_stroke_color").value;
+		    var strokeOpacity=document.getElementById("shape_stroke_opacity").value;
+            var fillColor=document.getElementById("shape_fill_color").value;
+            var fillOpacity=document.getElementById("shape_fill_opacity").value;
 		    elt.mouseover(function(){
 		        if(!noglow && (mode==0))
 		        {
@@ -174,10 +179,11 @@
 		        gl.remove();
 		    })
 		    elt.attr({
-		        "stroke-width":5,
-		        "stroke":"#222222",
-		        "fill":"#ffff00",
-		        "fill-opacity":.5
+		        "stroke-width":strokeWidth,
+		        "stroke":"#"+strokeColor,
+		        "stroke-opacity":strokeOpacity,
+		        "fill":"#"+fillColor,
+		        "fill-opacity":fillOpacity
 		    });
 		    
 		    //drag(move, start, stop,...)
@@ -265,7 +271,9 @@
 		    var origmousey;
 		    var w=parseInt($('#canv').css("width"));
     	    var h=parseInt($('#canv').css("height"));
-		    
+    	    var marqFillColor=document.getElementById("marq_color").value;
+            var marqFillOpacity=document.getElementById("marq_opacity").value;
+            
 		    elt.mouseover(function(){
 		        if(!noglow && (mode==3))
 		        {
@@ -286,8 +294,8 @@
 		    mset.attr({
 		        "stroke-width":0,
 		        "stroke":"#222222",
-		        "fill":"#222222",
-		        "fill-opacity":".8"
+		        "fill":"#"+marqFillColor,
+		        "fill-opacity":marqFillOpacity
 		    });
 		    
 		    
@@ -416,7 +424,7 @@
 		function add_marquee()
 		{
 		    set_mode(3);
-    	    var topx=40+Math.floor(Math.random()*10), botx=80+Math.floor(Math.random()*10), topy=40+Math.floor(Math.random()*10), boty=80+Math.floor(Math.random()*10);
+    	    var topx=200+Math.floor(Math.random()*10), botx=300+Math.floor(Math.random()*10), topy=200+Math.floor(Math.random()*10), boty=300+Math.floor(Math.random()*10);
     	    //var topx=40, botx=80, topy=40, boty=80;
     	    var w=parseInt($('#canv').css("width"));
     	    var h=parseInt($('#canv').css("height"));
@@ -475,7 +483,9 @@
 		
         function drawPaths()
         {
-           
+            var strokeColor=document.getElementById("pen_color").value;
+            var strokeOpacity=document.getElementById("pen_opacity").value;
+            var strokeWidth=document.getElementById("pen_width").value;
             var paths;
             //removes all objects in pathObjects to be redrawn
             var len = pathObjects.length;
@@ -502,8 +512,9 @@
             {
                 var drawing = paper.path('M'+path[i]);
                 drawing.attr({
-                "stroke-width": strokeWidth,
-                "stroke-opacity": opacity,
+                "stroke-width":strokeWidth,
+                "stroke-opacity":strokeOpacity,
+                "stroke":"#"+strokeColor,
                 "stroke-linejoin":"round",
                 "stroke-linecap":"round"
                 })
@@ -513,7 +524,7 @@
         
         function erase(location)
         {
-     	    var range=5;
+            var range=parseInt(document.getElementById("eraser_width").value);
      	    for(var i = 0; i < xy.length; i++)
      	    {
      	        if(location[0] - range <= xy[i][0] && xy[i][0] <= location[0] + range)
@@ -705,48 +716,40 @@
     <input id="pen_opacity" class="color_input" type="text"
             value="1" />
     <br />
+    Pen width:
+    <input id="pen_width" class="color_input" type="text"
+            value="10" />
+    <br />
     Eraser width:
     <input id="eraser_width" class="color_input" type="text"
             value="5" />
     <br />
-    Rectangle stroke color:
-    <input id="rect_stroke_color" class="color_input" type="text"
+    Shape stroke width:        
+    <input id="shape_stroke_width" class="color_input" type="text"
+            value="3" />
+    <br />
+    Shape stroke color:
+    <input id="shape_stroke_color" class="color_input" type="text"
             value="000000" />
     <br />
-    Rectangle stroke opacity:        
-    <input id="rect_stroke_opacity" class="color_input" type="text"
+    Shape stroke opacity:        
+    <input id="shape_stroke_opacity" class="color_input" type="text"
             value="1" />
     <br />
-    Rectangle fill color:        
-    <input id="rect_fill_color" class="color_input" type="text"
+    Shape fill color:        
+    <input id="shape_fill_color" class="color_input" type="text"
             value="ffff00" />
     <br />
-    Rectangle fill opacity:        
-    <input id="rect_fill_opacity" class="color_input" type="text"
-            value=".5" />
-    <br />
-    Ellipse stroke color:
-    <input id="ellipse_stroke_color" class="color_input" type="text"
-            value="000000" />
-    <br />
-    Ellipse stroke opacity:        
-    <input id="ellipse_stroke_opacity" class="color_input" type="text"
-            value="1" />
-    <br />
-    Ellipse fill color:        
-    <input id="ellipse_fill_color" class="color_input" type="text"
-            value="ffff00" />
-    <br />
-    Ellipse fill opacity:        
-    <input id="ellipse_fill_opacity" class="color_input" type="text"
+    Shape fill opacity:        
+    <input id="shape_fill_opacity" class="color_input" type="text"
             value=".5" />
     <br />
     Marquee fill:
-    <input id="ellipse_fill_opacity" class="color_input" type="text"
-            value="#222222" />
+    <input id="marq_color" class="color_input" type="text"
+            value="222222" />
     <br />
     Marquee opacity:
-    <input id="ellipse_fill_opacity" class="color_input" type="text"
+    <input id="marq_opacity" class="color_input" type="text"
             value=".8" />
 </div>
 
