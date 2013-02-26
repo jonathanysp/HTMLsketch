@@ -25,6 +25,14 @@
 		    width:80px;
 		    height:40px;
 		}
+		#show_datastring_button
+		{
+		    position:absolute;
+		    top:420px;
+		    left:550px;
+		    width:80px;
+		    height:40px;
+		}
 		.color_options
 		{
 		    position:absolute;
@@ -121,7 +129,7 @@
 		#test_layers_div
 		{
 		    position:absolute;
-		    top:550px;
+		    top:580px;
 		    left:20px;
 		}
 		#toggle_marquees_button
@@ -136,7 +144,7 @@
 	<script>
 		window.onload = load;
 		var paper;
-		var mode=0;
+		var mode=1;
 		var click;
 		var ml=[];
         var xy=[];
@@ -146,6 +154,10 @@
 	    var opacity=1;
 	    var marquees=[];
 	    var marquees_on=1;
+	    var currpaths=""; //this will be the string representing all of our paths
+	    	                 //to get the paths individually, split at 'M'
+	    var pathattrs="";
+	    var datastring="";
 
 		//if the pointer icon is clicked, switch to default mode (0)
 		//if the pen icon is clicked, switch to pen mode (1)
@@ -234,12 +246,12 @@
     		        var canvy=parseInt($("#canv").css("top"));
     		        var canvby=parseInt($("#canv").css("border-top"));
     		        
-    		        document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> \
-    		        relevant x = "+(bbox.x+bbox.width+canvx+canvbx)+"<br /> y = "+y+"<br /> \
-    		        relevant y = "+(bbox.y+bbox.height+canvy+canvby)+"<br /> canvx = "+canvx+"\
-    		        <br /> canvbx = "+canvbx+"<br /> canvy = "+canvy+"\
-    		        <br /> canvby = "+canvby;
-    		        if((x>(bbox.x+bbox.width*0.75+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.75+canvy+canvby)))
+    		        // document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> \
+    		        //                    relevant x = "+(bbox.x+bbox.width+canvx+canvbx)+"<br /> y = "+y+"<br /> \
+    		        //                    relevant y = "+(bbox.y+bbox.height+canvy+canvby)+"<br /> canvx = "+canvx+"\
+    		        //                    <br /> canvbx = "+canvbx+"<br /> canvy = "+canvy+"\
+    		        //                    <br /> canvby = "+canvby;
+    		        if((x>(bbox.x+bbox.width*0.5+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.5+canvy+canvby)))
                     {
                         resize=1;
                     }
@@ -290,6 +302,8 @@
 		        "fill":"#ffffff",
 		        "fill-opacity":"0"
 		    });
+		    elt.data("surr-fill","#"+marqFillColor);
+		    elt.data("surr-opac",marqFillOpacity);
 		    var mset=paper.set();
 		    mset.push(marq.rn,marq.re,marq.rs,marq.rw);
 		    mset.attr({
@@ -372,8 +386,8 @@
     		        var canvbx=parseInt($("#canv").css("border-left"));
     		        var canvy=parseInt($("#canv").css("top"));
     		        var canvby=parseInt($("#canv").css("border-top"));
-    		        document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> bbox.x = "+(bbox.x)+"<br /> y = "+y+"<br /> bbox.y = "+(bbox.y);
-    		        if((x>(bbox.x+bbox.width*0.75+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.75+canvy+canvby)))
+    		        //document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> bbox.x = "+(bbox.x)+"<br /> y = "+y+"<br /> bbox.y = "+(bbox.y);
+    		        if((x>(bbox.x+bbox.width*0.5+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.5+canvy+canvby)))
                     {
                         resize=1;
                     }
@@ -404,6 +418,7 @@
 		    rect=paper.rect(x,y,50,50);
 		    rect.data("currx",x);
 		    rect.data("curry",y);
+		    rect.data("type","rect");
 		    add_attributes(rect);
 		}
 		
@@ -419,6 +434,7 @@
 		    ellipse.data("curry",ellipse.getBBox().y);
 		    ellipse.data("curr_rx",rx);
 		    ellipse.data("curr_ry",ry);
+		    ellipse.data("type","ellipse");
 		    add_attributes(ellipse);
 		}
 		
@@ -444,6 +460,7 @@
     	    var rc=paper.rect(topx,topy,botx-topx,boty-topy);
     	    rc.data("currx",topx);
     	    rc.data("curry",topy);
+    	    rc.data("type","marquee");
     	    var m=new marquee(rn,re,rs,rw,rc);
     	    add_marq_attributes(m);
     	    marquees.push(m);
@@ -512,6 +529,7 @@
             for(var i = 1; i < path.length; i++)
             {
                 var drawing = paper.path('M'+path[i]);
+                drawing.data("type","path");
                 drawing.attr({
                 "stroke-width":strokeWidth,
                 "stroke-opacity":strokeOpacity,
@@ -520,7 +538,9 @@
                 "stroke-linecap":"round"
                 })
                 pathObjects.push(drawing);
-            }       
+            }
+            currpaths=paths;
+            pathattrs="[stroke]"+strokeColor+"[strokeo]"+strokeOpacity+"[strokew]"+strokeWidth;
         }
         
         function erase(location)
@@ -548,7 +568,7 @@
 		{
 		    paper=Raphael(document.getElementById("canv"),500,500);
             set_up_icons();
-            set_mode(0);
+            set_mode(1);
             $("#canv").mousedown(function(e)
             {
         	    click = true;
@@ -557,15 +577,17 @@
             	case 1:
             	    ml.push('M');
             	    xy.push([e.offsetX,e.offsetY]);
-            	    ml.push('L');
+            	    ml.push('L'); //to allow drawing single dots
             	    xy.push([e.offsetX,e.offsetY]);
             	    drawPaths();
-            	    document.getElementById("test_layers_div").innerHTML="ml = "+ml+"<br /> xy = "+xy;
+            	    //document.getElementById("test_layers_div").innerHTML="ml = "+ml+"<br /> xy = "+xy;
             	    break;
             	case 2:
             	    erase([e.offsetX,e.offsetY]);
             	    break;
             	}
+            	//update_datastring();
+            	//document.getElementById("test_layers_div").innerHTML+="<br />currpaths = "+currpaths.split("undefined")[1];
             }).mouseup(function()
             {
                 click = false;
@@ -627,6 +649,7 @@
             marquees=[];
             paper.remove();
             paper=Raphael(document.getElementById("canv"),500,500);
+            update_datastring();
 		}
 		
 		function set_mode(i)
@@ -676,6 +699,45 @@
 		    {
 		        hide_marquees();
 		    }
+		}
+		
+		function update_datastring()
+		{
+		    document.getElementById("test_layers_div").innerHTML="";
+		    if(currpaths!="")
+		    {
+		        document.getElementById("test_layers_div").innerHTML="PATH::";
+		        document.getElementById("test_layers_div").innerHTML+="[pathstring]"+currpaths.split("undefined")[1];
+		        document.getElementById("test_layers_div").innerHTML+=pathattrs+"<br />";
+		    }
+		    paper.forEach(function(elt){
+        	    if(elt.data("type")=="rect")
+        	    {
+        	        document.getElementById("test_layers_div").innerHTML+="RECT::";
+        	        document.getElementById("test_layers_div").innerHTML+="[x]"+elt.attr("x")+"[y]"+elt.attr("y");
+        	        document.getElementById("test_layers_div").innerHTML+="[w]"+elt.attr("width")+"[h]"+elt.attr("height");
+        	        document.getElementById("test_layers_div").innerHTML+="[fillc]"+elt.attr("fill")+"[fillo]"+elt.attr("fill-opacity");
+        	        document.getElementById("test_layers_div").innerHTML+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity");
+        	        document.getElementById("test_layers_div").innerHTML+="[strokew]"+elt.attr("stroke-width")+"<br />";
+        	    }
+        	    else if(elt.data("type")=="ellipse")
+        	    {
+        	        document.getElementById("test_layers_div").innerHTML+="ELLIPSE::";
+        	        document.getElementById("test_layers_div").innerHTML+="[cx]"+elt.attr("cx")+"[cy]"+elt.attr("cy");
+        	        document.getElementById("test_layers_div").innerHTML+="[rx]"+elt.attr("rx")+"[ry]"+elt.attr("ry");
+        	        document.getElementById("test_layers_div").innerHTML+="[fillc]"+elt.attr("fill")+"[fillo]"+elt.attr("fill-opacity");
+        	        document.getElementById("test_layers_div").innerHTML+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity");
+        	        document.getElementById("test_layers_div").innerHTML+="[strokew]"+elt.attr("stroke-width")+"<br />";
+        	    }
+        	    else if(elt.data("type")=="marquee")
+        	    {
+        	        document.getElementById("test_layers_div").innerHTML+="MARQUEE::";
+        	        document.getElementById("test_layers_div").innerHTML+="[x]"+elt.attr("x")+"[y]"+elt.attr("y");
+        	        document.getElementById("test_layers_div").innerHTML+="[w]"+elt.attr("width")+"[h]"+elt.attr("height");
+        	        document.getElementById("test_layers_div").innerHTML+="[surrfillc]"+elt.data("surr-fill")+"[surrfillo]"+elt.data("surr-opac");
+        	        document.getElementById("test_layers_div").innerHTML+="<br />";
+        	    }
+        	});
 		}
 		
 	</script>
@@ -758,6 +820,9 @@
 
 <button id="clear_button" type="button"
         onclick='remove_all()'>Clear All</button>
+        
+<button id="show_datastring_button" type="button"
+        onclick='update_datastring()'>Show Data</button>
 
 <div id="test_layers_div"><div>
 </body>
