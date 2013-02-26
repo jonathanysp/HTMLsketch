@@ -224,6 +224,7 @@
 		    },function(x,y){
 		        if(!mode)
 		        {
+		            
 		            origmousex=x;
     		        origmousey=y;
     		        var bbox=this.getBBox();
@@ -339,7 +340,7 @@
         		    }
         		    else
         		    {
-        		        //resize a marquee -- need to update all relevant rectangle
+        		        //resize a marquee -- need to update all relevant rectangles
         		        this.attr({
         		            width:bbox.width+mousex-origmousex,
         		            height:bbox.height+mousey-origmousey
@@ -388,9 +389,9 @@
     		        this.data("curry",this.getBBox().y);
     		        marq.re.data("currx",this.getBBox().x+this.getBBox().width);
     		        marq.rs.data("curry",this.getBBox().y+this.getBBox().height);
-    		        noglow=0;
     		        resize=0;
     		        this.animate({opacity:1},500,"<>");
+    		        noglow=0;
 		        }
 		    });   
 		}
