@@ -19,7 +19,7 @@ var datastring="";
 //if the pen icon is clicked, switch to pen mode (1)
 //if the eraser icon is clicked, switch to eraser mode (2)
 
-function add_attributes(elt)
+function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,strokeWidth)
 {
     //var strokewidth=document.getElementById("strokewidth");
     //var strokecolor=document.getElementById("strokecolor");
@@ -32,11 +32,16 @@ function add_attributes(elt)
     var noglow=0; //if 1, glowing is disabled
     var origmousex;
     var origmousey;
-    var strokeWidth=document.getElementById("shape_stroke_width").value;
-    var strokeColor=document.getElementById("shape_stroke_color").value;
-    var strokeOpacity=document.getElementById("shape_stroke_opacity").value;
-    var fillColor=document.getElementById("shape_fill_color").value;
-    var fillOpacity=document.getElementById("shape_fill_opacity").value;
+    if(fillColor==undefined)
+        fillColor="#"+document.getElementById("shape_fill_color").value;
+    if(fillOpacity==undefined)
+        fillOpacity=document.getElementById("shape_fill_opacity").value;
+    if(strokeColor==undefined)
+        strokeColor="#"+document.getElementById("shape_stroke_color").value;
+    if(strokeOpacity==undefined)
+        strokeOpacity=document.getElementById("shape_stroke_opacity").value;
+    if(strokeWidth==undefined)
+        strokeWidth=document.getElementById("shape_stroke_width").value;
     elt.mouseover(function(){
         if(!noglow && (mode==0))
         {
@@ -48,9 +53,9 @@ function add_attributes(elt)
     })
     elt.attr({
         "stroke-width":strokeWidth,
-        "stroke":"#"+strokeColor,
+        "stroke":strokeColor,
         "stroke-opacity":strokeOpacity,
-        "fill":"#"+fillColor,
+        "fill":fillColor,
         "fill-opacity":fillOpacity
     });
     
@@ -129,7 +134,23 @@ function add_attributes(elt)
     });   
 }
 
-function add_marq_attributes(marq)
+function add_ellipse()
+{
+    set_mode(0);
+    var x=Math.floor(Math.random()*300);
+    var y=Math.floor(Math.random()*300);
+    var rx=20+Math.floor(Math.random()*40);
+    var ry=20+Math.floor(Math.random()*40);
+    ellipse=paper.ellipse(x,y,rx,ry);
+    ellipse.data("currx",ellipse.getBBox().x);
+    ellipse.data("curry",ellipse.getBBox().y);
+    ellipse.data("curr_rx",rx);
+    ellipse.data("curr_ry",ry);
+    ellipse.data("type","ellipse");
+    add_attributes(ellipse);
+}
+
+function add_marq_attributes(marq,marqFillColor,marqFillOpacity)
 {
     var elt=marq.rc;
     var canv=document.getElementById("canv");
@@ -140,8 +161,10 @@ function add_marq_attributes(marq)
     var origmousey;
     var w=parseInt($('#canv').css("width"));
     var h=parseInt($('#canv').css("height"));
-    var marqFillColor=document.getElementById("marq_color").value;
-    var marqFillOpacity=document.getElementById("marq_opacity").value;
+    if(marqFillColor==undefined)
+        marqFillColor="#"+document.getElementById("marq_color").value;
+    if(marqFillOpacity==undefined)
+        marqFillOpacity=document.getElementById("marq_opacity").value;
     
     elt.mouseover(function(){
         if(!noglow && (mode==3))
@@ -158,14 +181,14 @@ function add_marq_attributes(marq)
         "fill":"#ffffff",
         "fill-opacity":"0"
     });
-    elt.data("surr-fill","#"+marqFillColor);
+    elt.data("surr-fill",marqFillColor);
     elt.data("surr-opac",marqFillOpacity);
     var mset=paper.set();
     mset.push(marq.rn,marq.re,marq.rs,marq.rw);
     mset.attr({
         "stroke-width":0,
         "stroke":"#222222",
-        "fill":"#"+marqFillColor,
+        "fill":marqFillColor,
         "fill-opacity":marqFillOpacity
     });
     
@@ -266,34 +289,6 @@ function add_marq_attributes(marq)
     });   
 }
 
-function add_rectangle()
-{
-    set_mode(0);
-    var x=Math.floor(Math.random()*300);
-    var y=Math.floor(Math.random()*300);
-    rect=paper.rect(x,y,50,50);
-    rect.data("currx",x);
-    rect.data("curry",y);
-    rect.data("type","rect");
-    add_attributes(rect);
-}
-
-function add_ellipse()
-{
-    set_mode(0);
-    var x=Math.floor(Math.random()*300);
-    var y=Math.floor(Math.random()*300);
-    var rx=20+Math.floor(Math.random()*40);
-    var ry=20+Math.floor(Math.random()*40);
-    ellipse=paper.ellipse(x,y,rx,ry);
-    ellipse.data("currx",ellipse.getBBox().x);
-    ellipse.data("curry",ellipse.getBBox().y);
-    ellipse.data("curr_rx",rx);
-    ellipse.data("curr_ry",ry);
-    ellipse.data("type","ellipse");
-    add_attributes(ellipse);
-}
-
 function add_marquee()
 {
     set_mode(3);
@@ -326,58 +321,48 @@ function add_marquee()
     //             elt.innerHTML=marquees;
 }
 
-function hide_marquees()
+function add_rectangle()
 {
-    var i;
-    var len=marquees.length;
-    for(i=0;i<len;i++)
-    {
-        marquees[i].rn.hide();
-        marquees[i].re.hide();
-        marquees[i].rs.hide();
-        marquees[i].rw.hide();
-        marquees[i].rc.hide();
-    }
+    set_mode(0);
+    var x=Math.floor(Math.random()*300);
+    var y=Math.floor(Math.random()*300);
+    rect=paper.rect(x,y,50,50);
+    rect.data("currx",x);
+    rect.data("curry",y);
+    rect.data("type","rect");
+    add_attributes(rect);
 }
 
-function show_marquees()
+function drawPaths(paths,strokeColor,strokeOpacity,strokeWidth)
 {
-    var i;
-    var len=marquees.length;
-    for(i=0;i<len;i++)
+    if(paths==undefined)
     {
-        var m=marquees[i];
-        m.rn.show();
-        m.re.show();
-        m.rs.show();
-        m.rw.show();
-        m.rc.show();
-    }
-}
-
-function drawPaths()
-{
-    var strokeColor=document.getElementById("pen_color").value;
-    var strokeOpacity=document.getElementById("pen_opacity").value;
-    var strokeWidth=document.getElementById("pen_width").value;
-    var paths;
-    //removes all objects in pathObjects to be redrawn
-    var len = pathObjects.length;
-    for(var i = 0; i < pathObjects.length; i++)
-    { //removes paths from canvas
-        pathObjects[i].remove();
-    }
-    for(var i = 0; i < len; i++)
-    { //clears the pathObjects array
-        pathObjects.shift();
-    }
-    for(var i = 0; i < ml.length; i++)
-    { //constructs the path
-        if(ml[i] !== 'X')
-        {
-            paths += ml[i] + xy[i][0] + ',' + xy[i][1];;
+        var len = pathObjects.length;
+        for(var i = 0; i < pathObjects.length; i++)
+        { //removes paths from canvas
+            pathObjects[i].remove();
+        }
+        for(var i = 0; i < len; i++)
+        { //clears the pathObjects array
+            pathObjects.shift();
+        }
+        for(var i = 0; i < ml.length; i++)
+        { //constructs the path
+            if(ml[i] !== 'X')
+            {
+                paths += ml[i] + xy[i][0] + ',' + xy[i][1];;
+            }
         }
     }
+    if(strokeColor==undefined)
+        strokeColor="#"+document.getElementById("pen_color").value;
+    if(strokeOpacity==undefined)
+        strokeOpacity=document.getElementById("pen_opacity").value;
+    if(strokeWidth==undefined)
+        strokeWidth=document.getElementById("pen_width").value;
+    //var paths;
+    //removes all objects in pathObjects to be redrawn
+    
     if(paths.length > 0)
     {
         var path = paths.split('M');
@@ -389,7 +374,7 @@ function drawPaths()
         drawing.attr({
         "stroke-width":strokeWidth,
         "stroke-opacity":strokeOpacity,
-        "stroke":"#"+strokeColor,
+        "stroke":strokeColor,
         "stroke-linejoin":"round",
         "stroke-linecap":"round"
         })
@@ -420,13 +405,156 @@ function erase(location)
     }
 }
 
+function hide_marquees()
+{
+    var i;
+    var len=marquees.length;
+    for(i=0;i<len;i++)
+    {
+        marquees[i].rn.hide();
+        marquees[i].re.hide();
+        marquees[i].rs.hide();
+        marquees[i].rw.hide();
+        marquees[i].rc.hide();
+    }
+}
+
+function get_attr(str,attr,parsetype)
+{
+    //parse==0: return as string, parse==1: return as int, parse==2: return as float
+    if(parsetype==undefined)
+        parsetype="i";
+        
+    if(parsetype=="s")
+        return str.split("["+attr+"]")[1].split("[")[0];
+    else if(parsetype=="i")
+        return parseInt(str.split("["+attr+"]")[1].split("[")[0]);
+    else
+        return parseFloat(str.split("["+attr+"]")[1].split("[")[0]);
+}
+
+function inkAuthoring(canvasId)
+{
+    /*
+      definition of the inkAuthoring class
+      members:
+        paper -- a Raphael object (a canvas to draw on) fit to the div specified by canvasId
+        loadInk -- loads an Ink to the canvas using the string format specified in update_datastring() below
+    */
+    var cw=parseInt($("#"+canvasId).css("width"));
+    var ch=parseInt($("#"+canvasId).css("height"));
+    this.paper=Raphael(document.getElementById(canvasId),cw,ch);
+    this.loadInk=function(datastr){
+        var shapes=datastr.split("|");
+        var i;
+        for(i=0;i<shapes.length;i++)
+        {
+            var shape=shapes[i];
+            var type=shape.split("::")[0];
+            type=type.toLowerCase();
+            switch(type)
+            {
+                case "rect":
+                    //[x]73[y]196[w]187[h]201[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]
+                    var x=get_attr(shape,"x");
+                    var y=get_attr(shape,"y");
+                    var w=get_attr(shape,"w");
+                    var h=get_attr(shape,"h");
+                    var fillc=get_attr(shape,"fillc","s");
+                    var fillo=get_attr(shape,"fillo","f");
+                    var strokec=get_attr(shape,"strokec","s");
+                    var strokeo=get_attr(shape,"strokeo","f");
+                    var strokew=get_attr(shape,"strokew");
+                    var R=paper.rect(x,y,w,h);
+                    R.data("currx",x);
+                    R.data("curry",y);
+                    R.data("type","rect");
+                    add_attributes(R,fillc,fillo,strokec,strokeo,strokew);
+                    break;
+                case "ellipse":
+                    //[cx]81[cy]131[rx]40[ry]27[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]
+                    var cx=get_attr(shape,"cx");
+                    var cy=get_attr(shape,"cy");
+                    var rx=get_attr(shape,"rx");
+                    var ry=get_attr(shape,"ry");
+                    var fillc=get_attr(shape,"fillc","s");
+                    var fillo=get_attr(shape,"fillo","f");
+                    var strokec=get_attr(shape,"strokec","s");
+                    var strokeo=get_attr(shape,"strokeo","f");
+                    var strokew=get_attr(shape,"strokew");
+                    var E=paper.ellipse(cx,cy,rx,ry);
+                    E.data("currx",E.getBBox().x);
+                    E.data("curry",E.getBBox().y);
+                    E.data("curr_rx",rx);
+                    E.data("curr_ry",ry);
+                    E.data("type","ellipse");
+                    add_attributes(E,fillc,fillo,strokec,strokeo,strokew);
+                    break;
+                case "marquee":
+                    //[x]206[y]207[w]102[h]93[surrfillc]#222222[surrfillo].8[]
+                    var canvw=parseInt($('#canv').css("width"));
+                    var canvh=parseInt($('#canv').css("height"));
+                    var topx=get_attr(shape,"x");
+                    var topy=get_attr(shape,"y");
+                    var w=get_attr(shape,"w");
+                    var h=get_attr(shape,"h");
+                    var surrfillc=get_attr(shape,"surrfillc","s");
+                    var surrfillo=get_attr(shape,"surrfillo","f");
+                    //alert("surrfillc = "+surrfillc+", surrfillo = "+surrfillo);
+                    var botx=topx+w;
+                    var boty=topy+h;
+                    var rn=paper.rect(0,0,canvw,topy);
+                    rn.data("currx",0);
+                    rn.data("curry",0);
+                    var re=paper.rect(botx,topy,canvw-botx,boty-topy);
+                    re.data("currx",botx);
+                    re.data("curry",topy);
+                    var rs=paper.rect(0,boty,canvw,canvh-boty);
+                    rs.data("currx",0);
+                    rs.data("curry",boty);
+                    var rw=paper.rect(0,topy,topx,boty-topy);
+                    rw.data("currx",0);
+                    rw.data("curry",topy);
+                    var rc=paper.rect(topx,topy,botx-topx,boty-topy);
+                    rc.data("currx",topx);
+                    rc.data("curry",topy);
+                    rc.data("type","marquee");
+                    var m=new marquee(rn,re,rs,rw,rc);
+                    add_marq_attributes(m,surrfillc,surrfillo);
+                    marquees.push(m);
+                    show_marquees();
+                    marquees_on=1;
+                    break;
+                case "path":
+                    //[pathstring]M284,193L284,193[stroke]000000[strokeo]1[strokew]10[]
+                    var pathstring=get_attr(shape,"pathstring","s");
+                    var strokec=get_attr(shape,"stroke","s");
+                    var strokeo=get_attr(shape,"strokeo","f");
+                    var strokew=get_attr(shape,"strokew");
+                    currpaths=pathstring;
+                    update_ml_xy(pathstring);
+                    drawPaths(pathstring,strokec,strokeo,strokew);
+                    break;
+            }
+        }
+    }
+}
+
+
 function load()
 {
-    paper=Raphael(document.getElementById("canv"),500,500);
+    var iA=new inkAuthoring("canv");
+    //paper=Raphael(document.getElementById("canv"),500,500);
+    paper=iA.paper;
+    datastring="";
+    currpaths="";
+    //var teststr="PATH::[pathstring]M276,234L276,234L276,237L271,248M256,273L251,279L247,283L245,285L243,286L241,288L239,290L237,293M236,297M236,300L236,303L237,307L242,309L247,311L255,314L262,314L270,314L277,314L283,314L289,314L295,314L301,312M312,307M320,305M335,307M342,313L343,316L345,320L346,324L347,326L348,330M350,337M446,79L446,79L446,82L446,90L446,98L448,102L449,109L450,113L451,117L452,123M421,245L402,256M332,288L318,296M329,331L340,346M336,431L324,434M257,429L229,421L203,413L190,406L176,393M137,173L137,173L137,172L137,168L142,162L160,138L179,120L194,109M235,101L246,105L260,112L271,119L277,123L281,127L283,129L284,129M322,170L322,170L319,172L304,172L274,172L238,167M188,153L174,148L166,146L161,145L160,144L159,144L158,147L157,152L153,161L150,167L149,172L147,175L144,180L144,184L142,188L141,193L141,195L141,196M141,199L141,199M347,80L347,80M371,118L371,118L369,123L372,137L376,155L378,165L380,175L381,180L381,183L382,184L382,185[stroke]#000000[strokeo]1[strokew]10[]|RECT::[x]137[y]259[w]50[h]50[fillc]#ffff00[fillo]0.5[strokec]#000000[strokeo]1[strokew]3[]|ELLIPSE::[cx]95[cy]3[rx]43[ry]35[fillc]#ffff00[fillo]0.5[strokec]#000000[strokeo]1[strokew]3[]|MARQUEE::[x]205[y]208[w]103[h]98[surrfillc]#222222[surrfillo]0.8[]|RECT::[x]352[y]192[w]50[h]50[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]|ELLIPSE::[cx]273[cy]198[rx]75.96404506583949[ry]94.5[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]|MARQUEE::[x]183[y]106[w]260[h]183[surrfillc]#222222[surrfillo].8[]|";
+    //iA.loadInk(teststr);
     set_up_icons();
     set_mode(1);
     $("#canv").mousedown(function(e)
     {
+        //alert("ml = "+ml+", xy = "+xy);
 	    click = true;
 	    switch(mode)
     	{
@@ -540,9 +668,24 @@ function set_mode(i)
 
 function set_up_icons()
 {
-   var paper=Raphael(document.getElementById("pen_button"),35,35); paper.path("M13.587,12.074c-0.049-0.074-0.11-0.147-0.188-0.202c-0.333-0.243-0.803-0.169-1.047,0.166c-0.244,0.336-0.167,0.805,0.167,1.048c0.303,0.22,0.708,0.167,0.966-0.091l-7.086,9.768l-2.203,7.997l6.917-4.577L26.865,4.468l-4.716-3.42l-1.52,2.096c-0.087-0.349-0.281-0.676-0.596-0.907c-0.73-0.529-1.751-0.369-2.28,0.363C14.721,6.782,16.402,7.896,13.587,12.074zM10.118,25.148L6.56,27.503l1.133-4.117L10.118,25.148zM14.309,11.861c2.183-3.225,1.975-4.099,3.843-6.962c0.309,0.212,0.664,0.287,1.012,0.269L14.309,11.861z").attr({fill: "#000", stroke: "none"});
+    var paper=Raphael(document.getElementById("pen_button"),35,35); paper.path("M13.587,12.074c-0.049-0.074-0.11-0.147-0.188-0.202c-0.333-0.243-0.803-0.169-1.047,0.166c-0.244,0.336-0.167,0.805,0.167,1.048c0.303,0.22,0.708,0.167,0.966-0.091l-7.086,9.768l-2.203,7.997l6.917-4.577L26.865,4.468l-4.716-3.42l-1.52,2.096c-0.087-0.349-0.281-0.676-0.596-0.907c-0.73-0.529-1.751-0.369-2.28,0.363C14.721,6.782,16.402,7.896,13.587,12.074zM10.118,25.148L6.56,27.503l1.133-4.117L10.118,25.148zM14.309,11.861c2.183-3.225,1.975-4.099,3.843-6.962c0.309,0.212,0.664,0.287,1.012,0.269L14.309,11.861z").attr({fill: "#000", stroke: "none"});
    //var paper2=Raphael(document.getElementById("pointer_button"),35,35);
    //paper2.path("M15.834,29.084 15.834,16.166 2.917,16.166 29.083,2.917z").attr({fill: "#000", stroke:"none"});
+}
+
+function show_marquees()
+{
+    var i;
+    var len=marquees.length;
+    for(i=0;i<len;i++)
+    {
+        var m=marquees[i];
+        m.rn.show();
+        m.re.show();
+        m.rs.show();
+        m.rw.show();
+        m.rc.show();
+    }
 }
 
 function toggle_marquees()
@@ -560,39 +703,100 @@ function toggle_marquees()
 
 function update_datastring()
 {
+    /*
+      Returns a string giving all necessary information to recreate the current scene.
+      This is helpful for saving Inks to be loaded later. The format is as follows:
+        -Pen paths are all stored together in the substring
+        
+            PATH::[pathstring]<Raphael-format path string>[stroke]<stroke color>\
+                  [strokeo]<stroke opacity[strokew]strokeWidth[]
+                  
+         The trailing '[]' makes it easier to parse this string.
+        -Rectangles are stored individually in the following format:
+            
+            RECT::[x]<top corner x>[y]<top corner y>[w]<width>[h]<height>\
+	              [fillc]<fill color>[fillo]<fill opacity>[strokec]<stroke color>\
+	              [strokeo]<stroke opacity>[strokew]<stroke width>[]
+	              
+	    -Ellipses are stored individually in the following format:
+	    
+	        ELLIPSE::[cx]<center x>[cy]<center y>[rx]<x radius>[ry]<y radius>\
+	                 [fillc]<fill color>[fillo]<fill opacity>[strokec]<stroke color>\
+	                 [strokeo]<stroke opacity>[strokew]<stroke width>[]
+	                 
+	    -The substrings are separated by "|" characters.
+    */
     document.getElementById("test_layers_div").innerHTML="";
     datastring="";
     if(currpaths!="")
     {
-        var pth="PATH::[pathstring]"+currpaths.split("undefined")[1]+pathattrs;
+        var pth="PATH::[pathstring]"+currpaths.split("undefined")[1]+pathattrs+"[]";
         //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
-        datastring+=pth;
+        datastring+=pth+"|";
     }
     paper.forEach(function(elt){
 	    if(elt.data("type")=="rect")
 	    {
 	        var pth="RECT::[x]"+elt.attr("x")+"[y]"+elt.attr("y")+"[w]"+elt.attr("width")+"[h]"+elt.attr("height");
 	        pth+="[fillc]"+elt.attr("fill")+"[fillo]"+elt.attr("fill-opacity");
-	        pth+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity")+"[strokew]"+elt.attr("stroke-width");
+	        pth+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity")+"[strokew]"+elt.attr("stroke-width")+"[]";
 	        //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
-	        datastring+=pth;
+	        datastring+=pth+"|";
 	    }
 	    else if(elt.data("type")=="ellipse")
 	    {
 	        var pth="ELLIPSE::[cx]"+elt.attr("cx")+"[cy]"+elt.attr("cy")+"[rx]"+elt.attr("rx")+"[ry]"+elt.attr("ry");
 	        pth+="[fillc]"+elt.attr("fill")+"[fillo]"+elt.attr("fill-opacity");
-	        pth+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity")+"[strokew]"+elt.attr("stroke-width");
+	        pth+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity")+"[strokew]"+elt.attr("stroke-width")+"[]";
 	        //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
-	        datastring+=pth;
+	        datastring+=pth+"|";
 	    }
 	    else if(elt.data("type")=="marquee")
 	    {
 	        var pth="MARQUEE::[x]"+elt.attr("x")+"[y]"+elt.attr("y")+"[w]"+elt.attr("width")+"[h]"+elt.attr("height");
-	        pth+="[surrfillc]"+elt.data("surr-fill")+"[surrfillo]"+elt.data("surr-opac");
+	        pth+="[surrfillc]"+elt.data("surr-fill")+"[surrfillo]"+elt.data("surr-opac")+"[]";
 	        //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
-	        datastring+=pth;
+	        datastring+=pth+"|";
 	    }
 	});
 	document.getElementById("test_layers_div").innerHTML+="<br /><br />DATASTRING:<br />"+datastring;
 	return datastring;
+}
+
+function update_ml_xy(str)
+{
+    /*
+      When we load a pen path, we need to add its information to the ml and
+      xy arrays.
+    */
+    
+    var i,j;
+    
+    //add info to ml
+    for(i=0;i<str.length;i++)
+    {
+        if((str[i]=="L") || (str[i]=="M"))
+        {
+            ml.push(str[i]);
+        }
+    }
+    
+    //add info to xy
+    var arr1=str.split("L");
+    for(i=0;i<arr1.length;i++)
+    {
+        if(arr1[i].length>0)
+        {
+            var arr2=arr1[i].split("M");
+            for(j=0;j<arr2.length;j++)
+            {
+                if(arr2[j].length>0)
+                {
+                    var arr3=arr2[j].split(",");
+                    xy.push([arr3[0],arr3[1]]);
+                }
+            }
+        }
+    }
+    click=false;
 }
