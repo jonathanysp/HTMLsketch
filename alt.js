@@ -34,15 +34,15 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
     var origmousex;
     var origmousey;
     if(fillColor==undefined)
-        fillColor="#"+document.getElementById("shape_fill_color").value;
+        fillColor=iA.shapeFillColor;//"#"+document.getElementById("shape_fill_color").value;
     if(fillOpacity==undefined)
-        fillOpacity=document.getElementById("shape_fill_opacity").value;
+        fillOpacity=iA.shapeFillOpacity;//document.getElementById("shape_fill_opacity").value;
     if(strokeColor==undefined)
-        strokeColor="#"+document.getElementById("shape_stroke_color").value;
+        strokeColor=iA.shapeStrokeColor;//"#"+document.getElementById("shape_stroke_color").value;
     if(strokeOpacity==undefined)
-        strokeOpacity=document.getElementById("shape_stroke_opacity").value;
+        strokeOpacity=iA.shapeStrokeOpacity;//document.getElementById("shape_stroke_opacity").value;
     if(strokeWidth==undefined)
-        strokeWidth=document.getElementById("shape_stroke_width").value;
+        strokeWidth=iA.shapeStrokeWidth;//document.getElementById("shape_stroke_width").value;
     elt.mouseover(function(){
         if(!noglow && (mode==0))
         {
@@ -356,11 +356,11 @@ function drawPaths(paths,strokeColor,strokeOpacity,strokeWidth)
         }
     }
     if(strokeColor==undefined)
-        strokeColor="#"+document.getElementById("pen_color").value;
+        strokeColor=iA.penColor;//"#"+document.getElementById("pen_color").value;
     if(strokeOpacity==undefined)
-        strokeOpacity=document.getElementById("pen_opacity").value;
+        strokeOpacity=iA.penOpacity;//document.getElementById("pen_opacity").value;
     if(strokeWidth==undefined)
-        strokeWidth=document.getElementById("pen_width").value;
+        strokeWidth=iA.penWidth;//document.getElementById("pen_width").value;
     //var paths;
     //removes all objects in pathObjects to be redrawn
     
@@ -445,6 +445,19 @@ function inkAuthoring(canvasId)
     var cw=parseInt($("#"+canvasId).css("width"));
     var ch=parseInt($("#"+canvasId).css("height"));
     this.paper=Raphael(document.getElementById(canvasId),cw,ch);
+    
+    this.penColor="#000000";
+    this.penOpacity=1.0;
+    this.penWidth=5;
+    this.eraserWidth=5;
+    this.shapeStrokeColor="#000000";
+    this.shapeStrokeOpacity=1.0;
+    this.shapeStrokeWidth=3;
+    this.shapeFillColor="#ffff00";
+    this.shapeFillOpacity=0.0;
+    this.marqueeFillColor="#222222";
+    this.marqueeFillOpacity=0.8;
+    
     this.loadInk=function(datastr){
         var shapes=datastr.split("|");
         var i;
@@ -605,79 +618,96 @@ function inkAuthoring(canvasId)
         }
     });
     
-
+    this.setPenColor=function(c){this.penColor=c;};
+    this.setPenOpacity=function(o){this.penOpacity=o;};
+    this.setPenWidth=function(w){this.penWidth=w;};
+    this.setEraserWidth=function(w){this.eraserWidth=w;};
+    this.setShapeStrokeColor=function(c){this.shapeStrokeColor=c;};
+    this.setShapeStrokeOpacity=function(o){this.shapeStrokeOpacity=o;};
+    this.setShapeStrokeWidth=function(w){this.shapeStrokeWidth=w;};
+    this.setMarqueeFillColor=function(c){this.marqueeFillColor=c;};
+    this.setMarqueeFillOpacity=function(o){this.marqueeFillOpacity=o;};
+    
+    this.getPenColor=function(){return this.setPenColor;};
+    this.getPenOpacity=function(){return this.penOpacity;};
+    this.getPenWidth=function(){return this.penWidth;};
+    this.getEraserWidth=function(){return this.eraserWidth;};
+    this.getShapeStrokeColor=function(){return this.shapeStrokeColor;};
+    this.getShapeStrokeOpacity=function(){return this.shapeStrokeOpacity;};
+    this.getShapeStrokeWidth=function(){return this.shapeStrokeWidth;};
+    this.getMarqueeFillColor=function(){return this.marqueeFillColor;};
+    this.getMarqueeFillOpacity=function(){return this.marqueeFillOpacity;};
+    
+    this.updatePenColor=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val.length==6)
+            this.penColor="#"+val;
+    }
+    this.updatePenOpacity=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val!=undefined)
+            this.penOpacity=val;
+    }
+    this.updatePenWidth=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val!=undefined)
+            this.penWidth=val;
+    }
+    this.updateShapeStrokeColor=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val.length==6)
+            this.shapeStrokeColor=val;
+    }
+    this.updateShapeStrokeOpacity=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val!=undefined)
+            this.shapeStrokeOpacity=val;
+    }
+    this.updateShapeStrokeWidth=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val!=undefined)
+            this.shapeStrokeWidth=val;
+    }
+    this.updateShapeFillColor=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val.length==6)
+            this.shapeFillColor=val;
+    }
+    this.updateShapeFillOpacity=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val!=undefined)
+            this.shapeFillOpacity=val;
+    }
+    this.updateMarqueeColor=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val.length==6)
+            this.marqueeFillColor=val;
+    }
+    this.updateMarqueeColor=function(id)
+    {
+        var val=document.getElementById(id).value;
+        if(val!=undefined)
+            this.marqueeFillOpacity=val;
+    }
 }
 
 function load()
 {
     iA=new inkAuthoring("canv");
-    //paper=Raphael(document.getElementById("canv"),500,500);
     paper=iA.paper;
     datastring="";
     currpaths="";
-    //var teststr="PATH::[pathstring]M276,234L276,234L276,237L271,248M256,273L251,279L247,283L245,285L243,286L241,288L239,290L237,293M236,297M236,300L236,303L237,307L242,309L247,311L255,314L262,314L270,314L277,314L283,314L289,314L295,314L301,312M312,307M320,305M335,307M342,313L343,316L345,320L346,324L347,326L348,330M350,337M446,79L446,79L446,82L446,90L446,98L448,102L449,109L450,113L451,117L452,123M421,245L402,256M332,288L318,296M329,331L340,346M336,431L324,434M257,429L229,421L203,413L190,406L176,393M137,173L137,173L137,172L137,168L142,162L160,138L179,120L194,109M235,101L246,105L260,112L271,119L277,123L281,127L283,129L284,129M322,170L322,170L319,172L304,172L274,172L238,167M188,153L174,148L166,146L161,145L160,144L159,144L158,147L157,152L153,161L150,167L149,172L147,175L144,180L144,184L142,188L141,193L141,195L141,196M141,199L141,199M347,80L347,80M371,118L371,118L369,123L372,137L376,155L378,165L380,175L381,180L381,183L382,184L382,185[stroke]#000000[strokeo]1[strokew]10[]|RECT::[x]137[y]259[w]50[h]50[fillc]#ffff00[fillo]0.5[strokec]#000000[strokeo]1[strokew]3[]|ELLIPSE::[cx]95[cy]3[rx]43[ry]35[fillc]#ffff00[fillo]0.5[strokec]#000000[strokeo]1[strokew]3[]|MARQUEE::[x]205[y]208[w]103[h]98[surrfillc]#222222[surrfillo]0.8[]|RECT::[x]352[y]192[w]50[h]50[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]|ELLIPSE::[cx]273[cy]198[rx]75.96404506583949[ry]94.5[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]|MARQUEE::[x]183[y]106[w]260[h]183[surrfillc]#222222[surrfillo].8[]|";
-    //iA.loadInk(teststr);
     set_up_icons();
     set_mode(1);
-    /*$("#canv").mousedown(function(e)
-    {
-        //alert("ml = "+ml+", xy = "+xy);
-	    click = true;
-	    switch(mode)
-    	{
-    	case 1:
-    	    ml.push('M');
-    	    xy.push([e.offsetX,e.offsetY]);
-    	    ml.push('L'); //to allow drawing single dots
-    	    xy.push([e.offsetX,e.offsetY]);
-    	    drawPaths();
-    	    //document.getElementById("test_layers_div").innerHTML="ml = "+ml+"<br /> xy = "+xy;
-    	    break;
-    	case 2:
-    	    erase([e.offsetX,e.offsetY]);
-    	    break;
-    	}
-    	//update_datastring();
-    	//document.getElementById("test_layers_div").innerHTML+="<br />currpaths = "+currpaths.split("undefined")[1];
-    }).mouseup(function()
-    {
-        click = false;
-    }).mouseleave(function()
-    {
-     if(click === true)
-     {
-         click = false;
-     }
-    }).mousemove(function(e)
-    {
-        if((mode==1) || (mode==2))
-        {
-            $("#canv").css('cursor','crosshair');
-        }
-        else
-        {
-            $("#canv").css('cursor','pointer');
-        }
-        if(click === false)
-            return;
-        switch(mode)
-        {
-            case 1:
-                ml.push('L');
-                xy.push([e.offsetX,e.offsetY]);
-                drawPaths();
-                break;
-            case 2:
-                erase([e.offsetX,e.offsetY]);
-                break;
-        }
-    }).hover(function(e)
-    {
-        if(mode==1)
-        {
-            $("#canv").css('cursor', "pointer");
-        }
- });*/
 };
 
 function load_ink()
