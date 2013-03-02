@@ -33,6 +33,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
     var noglow=0; //if 1, glowing is disabled
     var origmousex;
     var origmousey;
+    
     if(fillColor==undefined)
         fillColor=iA.shapeFillColor;//"#"+document.getElementById("shape_fill_color").value;
     if(fillOpacity==undefined)
@@ -43,7 +44,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
         strokeOpacity=iA.shapeStrokeOpacity;//document.getElementById("shape_stroke_opacity").value;
     if(strokeWidth==undefined)
         strokeWidth=iA.shapeStrokeWidth;//document.getElementById("shape_stroke_width").value;
-    //alert("fillOpacity = "+fillOpacity+" "+iA.shapeFillOpacity);
+        
     elt.mouseover(function(){
         if(!noglow && (mode==0))
         {
@@ -661,7 +662,9 @@ function inkAuthoring(canvasId)
     {
         var val=document.getElementById(id).value;
         if(val.length==6)
-            this.shapeStrokeColor=val;
+        {
+            this.shapeStrokeColor="#"+val;
+        }
     }
     this.updateShapeStrokeOpacity=function(id)
     {
@@ -679,7 +682,7 @@ function inkAuthoring(canvasId)
     {
         var val=document.getElementById(id).value;
         if(val.length==6)
-            this.shapeFillColor=val;
+            this.shapeFillColor="#"+val;
     }
     this.updateShapeFillOpacity=function(id)
     {
