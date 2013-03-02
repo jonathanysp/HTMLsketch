@@ -43,10 +43,11 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
         strokeOpacity=iA.shapeStrokeOpacity;//document.getElementById("shape_stroke_opacity").value;
     if(strokeWidth==undefined)
         strokeWidth=iA.shapeStrokeWidth;//document.getElementById("shape_stroke_width").value;
+    //alert("fillOpacity = "+fillOpacity+" "+iA.shapeFillOpacity);
     elt.mouseover(function(){
         if(!noglow && (mode==0))
         {
-            gl=elt.glow({"width":15,"color":"#33ff00","opacity":.8});
+            gl=elt.glow({"width":15,"color":"#33ff00","opacity":0.8});
         }
     })
     elt.mouseout(function(){
