@@ -706,7 +706,7 @@ function inkAuthoring(canvasId)
 
 function load()
 {
-    iA=new inkAuthoring("canv");
+    iA=new inkAuthoring("canv"); //buildcore buildexperiences in rin.tools.
     paper=iA.paper;
     datastring="";
     currpaths="";
