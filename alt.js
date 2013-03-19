@@ -27,7 +27,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
     //var fillcolor=document.getElementById("fillcolor");
     //var fillopacity=document.getElementById("fillopacity");
     //$("#canvas").mousedown();
-    var canv=document.getElementById("canv");
+    var canv=document.getElementById("inkCanv");
     var gl;
     var resize=0; //if 1, we are in zoom mode rather than pan mode
     var noglow=0; //if 1, glowing is disabled
@@ -105,10 +105,10 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
 	        origmousey=y;
 	        var bbox=this.getBBox();
 	        resize=0;
-	        var canvx=parseInt($("#canv").css("left"));
-	        var canvbx=parseInt($("#canv").css("border-left"));
-	        var canvy=parseInt($("#canv").css("top"));
-	        var canvby=parseInt($("#canv").css("border-top"));
+	        var canvx=parseInt($("#inkCanv").css("left"));
+	        var canvbx=parseInt($("#inkCanv").css("border-left"));
+	        var canvy=parseInt($("#inkCanv").css("top"));
+	        var canvby=parseInt($("#inkCanv").css("border-top"));
 	        
 	        // document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> \
 	        //                    relevant x = "+(bbox.x+bbox.width+canvx+canvbx)+"<br /> y = "+y+"<br /> \
@@ -156,14 +156,14 @@ function add_ellipse()
 function add_marq_attributes(marq,marqFillColor,marqFillOpacity)
 {
     var elt=marq.rc;
-    var canv=document.getElementById("canv");
+    var canv=document.getElementById("inkCanv");
     var gl;
     var resize=0; //if 1, we are in zoom mode rather than pan mode
     var noglow=0; //if 1, glowing is disabled
     var origmousex;
     var origmousey;
-    var w=parseInt($('#canv').css("width"));
-    var h=parseInt($('#canv').css("height"));
+    var w=parseInt($('#inkCanv').css("width"));
+    var h=parseInt($('#inkCanv').css("height"));
     if(marqFillColor==undefined)
         marqFillColor="#"+document.getElementById("marq_color").value;
     if(marqFillOpacity==undefined)
@@ -264,10 +264,10 @@ function add_marq_attributes(marq,marqFillColor,marqFillOpacity)
             origmousex=x;
 	        origmousey=y;
 	        var bbox=this.getBBox();
-	        var canvx=parseInt($("#canv").css("left"));
-	        var canvbx=parseInt($("#canv").css("border-left"));
-	        var canvy=parseInt($("#canv").css("top"));
-	        var canvby=parseInt($("#canv").css("border-top"));
+	        var canvx=parseInt($("#inkCanv").css("left"));
+	        var canvbx=parseInt($("#inkCanv").css("border-left"));
+	        var canvy=parseInt($("#inkCanv").css("top"));
+	        var canvby=parseInt($("#inkCanv").css("border-top"));
 	        //document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> bbox.x = "+(bbox.x)+"<br /> y = "+y+"<br /> bbox.y = "+(bbox.y);
 	        if((x>(bbox.x+bbox.width*0.5+canvx+canvbx)) && (y>(bbox.y+bbox.height*0.5+canvy+canvby)))
             {
@@ -297,8 +297,8 @@ function add_marquee()
     set_mode(3);
     var topx=200+Math.floor(Math.random()*10), botx=300+Math.floor(Math.random()*10), topy=200+Math.floor(Math.random()*10), boty=300+Math.floor(Math.random()*10);
     //var topx=40, botx=80, topy=40, boty=80;
-    var w=parseInt($('#canv').css("width"));
-    var h=parseInt($('#canv').css("height"));
+    var w=parseInt($('#inkCanv').css("width"));
+    var h=parseInt($('#inkCanv').css("height"));
     var rn=paper.rect(0,0,w,topy);
     rn.data("currx",0);
     rn.data("curry",0);
@@ -607,11 +607,11 @@ function inkAuthoring(canvasId)
     {
         if((mode==1) || (mode==2))
         {
-            $("#canv").css('cursor','crosshair');
+            $("#inkCanv").css('cursor','crosshair');
         }
         else
         {
-            $("#canv").css('cursor','pointer');
+            $("#inkCanv").css('cursor','pointer');
         }
         if(click === false)
             return;
@@ -630,7 +630,7 @@ function inkAuthoring(canvasId)
     {
         if(mode==1)
         {
-            $("#canv").css('cursor', "pointer");
+            $("#inkCanv").css('cursor', "pointer");
         }
     });
     
@@ -720,7 +720,7 @@ function inkAuthoring(canvasId)
 
 function load()
 {
-    iA=new inkAuthoring("canv"); //buildcore buildexperiences in rin.tools.
+    iA=new inkAuthoring("inkCanv"); //buildcore buildexperiences in rin.tools.
     paper=iA.paper;
     datastring="";
     currpaths="";
@@ -747,7 +747,7 @@ function remove_all()
 {
     //removes all Raphael elements from the canvas
     paper.remove();
-    paper=Raphael(document.getElementById("canv"),500,500);
+    paper=Raphael(document.getElementById("inkCanv"),500,500);
     ml=[];
     xy=[];
     paths=[];
@@ -881,7 +881,7 @@ function update_datastring(canvid)
     */
 	if(canvid==undefined)
 	{
-		canvid="canv";
+		canvid="inkCanv";
 	}
 	var canv_height=parseInt($("#"+canvid).css("height"));
 	var canv_width=parseInt($("#"+canvid).css("width"));
@@ -941,7 +941,7 @@ function update_ml_xy(str, canvasId)
     
 	if(canvasId==undefined)
 	{
-		canvasId="canv";
+		canvasId="inkCanv";
 	}
     var i,j;
     var cw=parseInt($("#"+canvasId).css("width"));
