@@ -426,7 +426,7 @@ function get_attr(str,attr,parsetype)
 {
     //parse==0: return as string, parse==1: return as int, parse==2: return as float
     if(parsetype==undefined)
-        parsetype="i";
+        parsetype="f";
         
     if(parsetype=="s")
         return str.split("["+attr+"]")[1].split("[")[0];
@@ -434,6 +434,15 @@ function get_attr(str,attr,parsetype)
         return parseInt(str.split("["+attr+"]")[1].split("[")[0]);
     else
         return parseFloat(str.split("["+attr+"]")[1].split("[")[0]);
+}
+
+function rel_dims(abs_dim,canv_dim)
+{
+	return parseFloat(abs_dim)/canv_dim;
+}
+function abs_dims(rel_dim,canv_dim)
+{
+	return parseFloat(rel_dim)*canv_dim;
 }
 
 function inkAuthoring(canvasId)
@@ -472,10 +481,11 @@ function inkAuthoring(canvasId)
             {
                 case "rect":
                     //[x]73[y]196[w]187[h]201[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]
-                    var x=get_attr(shape,"x");
-                    var y=get_attr(shape,"y");
-                    var w=get_attr(shape,"w");
-                    var h=get_attr(shape,"h");
+                    var x=abs_dims(get_attr(shape,"x"),cw);
+                    var y=abs_dims(get_attr(shape,"y"),ch);
+                    var w=abs_dims(get_attr(shape,"w"),cw);
+                    var h=abs_dims(get_attr(shape,"h"),ch);
+
                     var fillc=get_attr(shape,"fillc","s");
                     var fillo=get_attr(shape,"fillo","f");
                     var strokec=get_attr(shape,"strokec","s");
@@ -489,10 +499,11 @@ function inkAuthoring(canvasId)
                     break;
                 case "ellipse":
                     //[cx]81[cy]131[rx]40[ry]27[fillc]#ffff00[fillo].5[strokec]#000000[strokeo]1[strokew]3[]
-                    var cx=get_attr(shape,"cx");
-                    var cy=get_attr(shape,"cy");
-                    var rx=get_attr(shape,"rx");
-                    var ry=get_attr(shape,"ry");
+					var cx=abs_dims(get_attr(shape,"cx"),cw);
+                    var cy=abs_dims(get_attr(shape,"cy"),ch);
+                    var rx=abs_dims(get_attr(shape,"rx"),cw);
+                    var ry=abs_dims(get_attr(shape,"ry"),ch);
+
                     var fillc=get_attr(shape,"fillc","s");
                     var fillo=get_attr(shape,"fillo","f");
                     var strokec=get_attr(shape,"strokec","s");
@@ -508,24 +519,24 @@ function inkAuthoring(canvasId)
                     break;
                 case "marquee":
                     //[x]206[y]207[w]102[h]93[surrfillc]#222222[surrfillo].8[]
-                    var canvw=parseInt($('#canv').css("width"));
-                    var canvh=parseInt($('#canv').css("height"));
-                    var topx=get_attr(shape,"x");
-                    var topy=get_attr(shape,"y");
-                    var w=get_attr(shape,"w");
-                    var h=get_attr(shape,"h");
+                   // var canvw=parseInt($('#canv').css("width"));
+                   // var canvh=parseInt($('#canv').css("height"));
+                    var topx=abs_dims(get_attr(shape,"x"),cw);
+                    var topy=abs_dims(get_attr(shape,"y"),ch);
+                    var w=abs_dims(get_attr(shape,"w"),cw);
+                    var h=abs_dims(get_attr(shape,"h"),ch);
                     var surrfillc=get_attr(shape,"surrfillc","s");
                     var surrfillo=get_attr(shape,"surrfillo","f");
                     //alert("surrfillc = "+surrfillc+", surrfillo = "+surrfillo);
                     var botx=topx+w;
                     var boty=topy+h;
-                    var rn=paper.rect(0,0,canvw,topy);
+                    var rn=paper.rect(0,0,cw,topy);
                     rn.data("currx",0);
                     rn.data("curry",0);
-                    var re=paper.rect(botx,topy,canvw-botx,boty-topy);
+                    var re=paper.rect(botx,topy,cw-botx,boty-topy);
                     re.data("currx",botx);
                     re.data("curry",topy);
-                    var rs=paper.rect(0,boty,canvw,canvh-boty);
+                    var rs=paper.rect(0,boty,cw,ch-boty);
                     rs.data("currx",0);
                     rs.data("curry",boty);
                     var rw=paper.rect(0,topy,topx,boty-topy);
@@ -542,14 +553,17 @@ function inkAuthoring(canvasId)
                     marquees_on=1;
                     break;
                 case "path":
-                    //[pathstring]M284,193L284,193[stroke]000000[strokeo]1[strokew]10[]
+					//[pathstring]M0.588,0.572L0.588,0.572[stroke]#000000[strokeo]1[strokew]5[]
                     var pathstring=get_attr(shape,"pathstring","s");
                     var strokec=get_attr(shape,"stroke","s");
                     var strokeo=get_attr(shape,"strokeo","f");
                     var strokew=get_attr(shape,"strokew");
-                    currpaths=pathstring;
-                    update_ml_xy(pathstring);
-                    drawPaths(pathstring,strokec,strokeo,strokew);
+					//alert("pathstring = "+pathstring);
+                    currpaths=transform_pathstring(pathstring,cw,ch,"round");
+					document.getElementById("test_layers_div").innerHTML+="PATH TEST:::::"+currpaths;
+					///alert(currpaths);
+                    update_ml_xy(currpaths);
+                    drawPaths(currpaths,strokec,strokeo,strokew);
                     break;
             }
         }
@@ -807,11 +821,44 @@ function toggle_marquees()
     }
 }
 
-function update_datastring()
+function transform_pathstring(currpaths, trans_factor_x, trans_factor_y, rnd)
+{
+	//the trans_factors will be 1/w, 1/h if we are going from absolute to relative
+	//to keep representations short, currently only storing three decimal points
+	if(rnd==undefined){ rnd=0; }
+	else{ rnd=1; }
+	
+	var nums=currpaths.match(/[0-9.]+/g);
+	var newpath="";
+	var j=0, i=0, n=currpaths.length;
+	for(i=0;i<n;i++)
+	{
+		if((currpaths[i]=="M") || (currpaths[i]=="L"))
+		{
+			if(rnd)
+			{
+				//alert(newpath);
+				newpath=newpath+currpaths[i]+Math.round(parseFloat(nums[j])*trans_factor_x)+",";
+				newpath+=Math.round(parseFloat(nums[j+1])*trans_factor_y);
+			}
+			else
+			{
+				newpath=newpath+currpaths[i]+(parseFloat(nums[j])*trans_factor_x).toFixed(3)+",";
+				newpath+=(parseFloat(nums[j+1])*trans_factor_y).toFixed(3);
+			}
+			j=j+2;
+		}
+	}
+	return newpath;
+}
+
+function update_datastring(canvid)
 {
     /*
       Returns a string giving all necessary information to recreate the current scene.
-      This is helpful for saving Inks to be loaded later. The format is as follows:
+      This is helpful for saving Inks to be loaded later. The x- and y-values are in
+	  the interval [0,1], which lets the shapes fit into any sized canvas. The format
+	  is as follows:
         -Pen paths are all stored together in the substring
         
             PATH::[pathstring]<Raphael-format path string>[stroke]<stroke color>\
@@ -832,18 +879,32 @@ function update_datastring()
 	                 
 	    -The substrings are separated by "|" characters.
     */
+	if(canvid==undefined)
+	{
+		canvid="canv";
+	}
+	var canv_height=parseInt($("#"+canvid).css("height"));
+	var canv_width=parseInt($("#"+canvid).css("width"));
+	
     document.getElementById("test_layers_div").innerHTML="";
     datastring="";
     if(currpaths!="")
     {
-        var pth="PATH::[pathstring]"+currpaths.split("undefined")[1]+pathattrs+"[]";
+	    var nound=currpaths;
+		if(currpaths.split("undefined").length>1)
+			nound=currpaths.split("undefined")[1]
+		var newpath=transform_pathstring(nound,1.0/canv_height,1.0/canv_width);
+		//alert("hi");
+        var pth="PATH::[pathstring]"+newpath+pathattrs+"[]";
         //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
         datastring+=pth+"|";
     }
     paper.forEach(function(elt){
+		//alert("canv_height = "+canv_height);
 	    if(elt.data("type")=="rect")
 	    {
-	        var pth="RECT::[x]"+elt.attr("x")+"[y]"+elt.attr("y")+"[w]"+elt.attr("width")+"[h]"+elt.attr("height");
+	        var pth="RECT::[x]"+rel_dims(elt.attr("x"),canv_width)+"[y]"+rel_dims(elt.attr("y"),canv_height);
+			pth+="[w]"+rel_dims(elt.attr("width"),canv_width)+"[h]"+rel_dims(elt.attr("height"),canv_height);
 	        pth+="[fillc]"+elt.attr("fill")+"[fillo]"+elt.attr("fill-opacity");
 	        pth+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity")+"[strokew]"+elt.attr("stroke-width")+"[]";
 	        //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
@@ -851,7 +912,8 @@ function update_datastring()
 	    }
 	    else if(elt.data("type")=="ellipse")
 	    {
-	        var pth="ELLIPSE::[cx]"+elt.attr("cx")+"[cy]"+elt.attr("cy")+"[rx]"+elt.attr("rx")+"[ry]"+elt.attr("ry");
+	        var pth="ELLIPSE::[cx]"+rel_dims(elt.attr("cx"),canv_width)+"[cy]"+rel_dims(elt.attr("cy"),canv_height);
+			pth+="[rx]"+rel_dims(elt.attr("rx"),canv_width)+"[ry]"+rel_dims(elt.attr("ry"),canv_height);
 	        pth+="[fillc]"+elt.attr("fill")+"[fillo]"+elt.attr("fill-opacity");
 	        pth+="[strokec]"+elt.attr("stroke")+"[strokeo]"+elt.attr("stroke-opacity")+"[strokew]"+elt.attr("stroke-width")+"[]";
 	        //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
@@ -859,25 +921,31 @@ function update_datastring()
 	    }
 	    else if(elt.data("type")=="marquee")
 	    {
-	        var pth="MARQUEE::[x]"+elt.attr("x")+"[y]"+elt.attr("y")+"[w]"+elt.attr("width")+"[h]"+elt.attr("height");
+	        var pth="MARQUEE::[x]"+rel_dims(elt.attr("x"),canv_width)+"[y]"+rel_dims(elt.attr("y"),canv_height);
+			pth+="[w]"+rel_dims(elt.attr("width"),canv_width)+"[h]"+rel_dims(elt.attr("height"),canv_height);
 	        pth+="[surrfillc]"+elt.data("surr-fill")+"[surrfillo]"+elt.data("surr-opac")+"[]";
 	        //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
 	        datastring+=pth+"|";
 	    }
 	});
-	document.getElementById("test_layers_div").innerHTML+="DATASTRING:<br />"+datastring;
+	document.getElementById("test_layers_div").innerHTML+=datastring;
 	return datastring;
 }
 
-function update_ml_xy(str)
+function update_ml_xy(str, canvasId)
 {
     /*
       When we load a pen path, we need to add its information to the ml and
       xy arrays.
     */
     
+	if(canvasId==undefined)
+	{
+		canvasId="canv";
+	}
     var i,j;
-    
+    var cw=parseInt($("#"+canvasId).css("width"));
+    var ch=parseInt($("#"+canvasId).css("height"));
     //add info to ml
     for(i=0;i<str.length;i++)
     {
