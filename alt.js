@@ -16,9 +16,16 @@ var currpaths=""; //this will be the string representing all of our paths
 var pathattrs="";
 var datastring="";
 
+var originalHeight, originalWidth;
+
 //if the pointer icon is clicked, switch to default mode (0)
 //if the pen icon is clicked, switch to pen mode (1)
 //if the eraser icon is clicked, switch to eraser mode (2)
+
+function abs_dims(rel_dim,canv_dim)
+{
+	return parseFloat(rel_dim)*canv_dim;
+}
 
 function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,strokeWidth)
 {
@@ -30,7 +37,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
     var canv=document.getElementById("inkCanv");
     var gl;
     var resize=0; //if 1, we are in zoom mode rather than pan mode
-    var noglow=0; //if 1, glowing is disabled
+    var noglow=1; //if 1, glowing is disabled
     var origmousex;
     var origmousey;
     
@@ -85,6 +92,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
 		    {
 		        //resize an element
 		        var bbox=this.getBBox();
+				document.getElementById("test_layers_div").innerHTML="bbox: x="+bbox.x+", y="+bbox.y+", w="+bbox.width+", h="+bbox.height;
 		        this.attr({
 		            cx:bbox.x+bbox.width*0.5+(mousex-origmousex)*0.5,
 		            cy:bbox.y+bbox.height*0.5+(mousey-origmousey)*0.5,
@@ -100,7 +108,6 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
     },function(x,y){
         if(!mode)
         {
-            
             origmousex=x;
 	        origmousey=y;
 	        var bbox=this.getBBox();
@@ -119,6 +126,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
             {
                 resize=1;
             }
+			
 	        gl.remove();
 	        noglow=1;
 	        this.animate({opacity:.25},500,"<>");
@@ -130,7 +138,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
 	        this.data("curry",this.getBBox().y);
 	        this.data("curr_rx",this.getBBox().width/2.0);
 	        this.data("curr_ry",this.getBBox().height/2.0);
-	        noglow=0;
+	        //noglow=0;
 	        resize=0;
 	        this.animate({opacity:1},500,"<>");
         }
@@ -140,10 +148,12 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
 function add_ellipse()
 {
     set_mode(0);
-    var x=Math.floor(Math.random()*300);
-    var y=Math.floor(Math.random()*300);
-    var rx=20+Math.floor(Math.random()*40);
-    var ry=20+Math.floor(Math.random()*40);
+	var w=parseInt($('#inkCanv').css("width"));
+    var h=parseInt($('#inkCanv').css("height"));
+	var x=Math.floor(Math.random()*w);
+    var y=Math.floor(Math.random()*h);
+	var rx=Math.floor(Math.random()*(w-x-1));
+	var ry=Math.floor(Math.random()*(h-y-1));
     ellipse=paper.ellipse(x,y,rx,ry);
     ellipse.data("currx",ellipse.getBBox().x);
     ellipse.data("curry",ellipse.getBBox().y);
@@ -198,6 +208,8 @@ function add_marq_attributes(marq,marqFillColor,marqFillOpacity)
     
     //drag(move, start, stop,...)
     elt.drag(function(dx,dy,mousex,mousey){
+		w=parseInt($('#inkCanv').css("width"));
+	    h=parseInt($('#inkCanv').css("height"));
         //onmove
         if(mode==3)
         {
@@ -237,20 +249,25 @@ function add_marq_attributes(marq,marqFillColor,marqFillOpacity)
 		    else
 		    {
 		        //resize a marquee -- need to update all relevant rectangles
+				//rs.y:bbox.y+bbox.height+mousey-origmousey,
+				var X=this.attr("x");
+				var Y=this.attr("y");
 		        this.attr({
 		            width:bbox.width+mousex-origmousex,
 		            height:bbox.height+mousey-origmousey
 		        });
 		        marq.rs.attr({
-		            y:bbox.y+bbox.height+mousey-origmousey,
+		            y:Y+bbox.height+mousey-origmousey,
 		            height:h-(bbox.y+bbox.height+mousey-origmousey)
 		        });
 		        marq.re.attr({
 		            x:bbox.x+bbox.width+mousex-origmousex,
+					y:Y,
 		            width:w-(bbox.x+bbox.width+mousex-origmousex),
 		            height:bbox.height+mousey-origmousey
 		        })
 		        marq.rw.attr({
+					y:Y,
 		            height:bbox.height+mousey-origmousey
 		        })
 		    }
@@ -302,15 +319,19 @@ function add_marquee()
     var rn=paper.rect(0,0,w,topy);
     rn.data("currx",0);
     rn.data("curry",0);
+	rn.data("type","marq_rect");
     var re=paper.rect(botx,topy,w-botx,boty-topy);
     re.data("currx",botx);
     re.data("curry",topy);
+	re.data("type","marq_rect");
     var rs=paper.rect(0,boty,w,h-boty);
     rs.data("currx",0);
     rs.data("curry",boty);
+	rs.data("type","marq_rect");
     var rw=paper.rect(0,topy,topx,boty-topy);
     rw.data("currx",0);
     rw.data("curry",topy);
+	rw.data("type","marq_rect");
     var rc=paper.rect(topx,topy,botx-topx,boty-topy);
     rc.data("currx",topx);
     rc.data("curry",topy);
@@ -327,9 +348,13 @@ function add_marquee()
 function add_rectangle()
 {
     set_mode(0);
-    var x=Math.floor(Math.random()*300);
-    var y=Math.floor(Math.random()*300);
-    rect=paper.rect(x,y,50,50);
+	var w=parseInt($('#inkCanv').css("width"));
+    var h=parseInt($('#inkCanv').css("height"));
+    var x=Math.floor(Math.random()*w);
+    var y=Math.floor(Math.random()*h);
+	var wid=Math.floor(Math.random()*(w-x-1));
+	var hei=Math.floor(Math.random()*(h-y-1));
+    rect=paper.rect(x,y,wid,hei);
     rect.data("currx",x);
     rect.data("curry",y);
     rect.data("type","rect");
@@ -436,15 +461,6 @@ function get_attr(str,attr,parsetype)
         return parseFloat(str.split("["+attr+"]")[1].split("[")[0]);
 }
 
-function rel_dims(abs_dim,canv_dim)
-{
-	return parseFloat(abs_dim)/canv_dim;
-}
-function abs_dims(rel_dim,canv_dim)
-{
-	return parseFloat(rel_dim)*canv_dim;
-}
-
 function inkAuthoring(canvasId)
 {
     /*
@@ -455,7 +471,7 @@ function inkAuthoring(canvasId)
     */
     var cw=parseInt($("#"+canvasId).css("width"));
     var ch=parseInt($("#"+canvasId).css("height"));
-    this.paper=Raphael(document.getElementById(canvasId),cw,ch);
+    this.paper=Raphael(document.getElementById(canvasId),"100%","100%");
     
     this.penColor="#000000";
     this.penOpacity=1.0;
@@ -470,6 +486,8 @@ function inkAuthoring(canvasId)
     this.marqueeFillOpacity=0.8;
     
     this.loadInk=function(datastr){
+		cw=parseInt($("#"+canvasId).css("width"));
+	    ch=parseInt($("#"+canvasId).css("height"));
         var shapes=datastr.split("|");
         var i;
         for(i=0;i<shapes.length;i++)
@@ -591,6 +609,8 @@ function inkAuthoring(canvasId)
     	case 2:
     	    erase([e.offsetX,e.offsetY]);
     	    break;
+		default:
+			break;
     	}
     	//update_datastring();
     	//document.getElementById("test_layers_div").innerHTML+="<br />currpaths = "+currpaths.split("undefined")[1];
@@ -726,6 +746,25 @@ function load()
     currpaths="";
     set_up_icons();
     set_mode(1);
+
+	originalHeight = $("#inkCanv").height();
+	originalWidth = $("#inkCanv").width();
+
+	//alert("originals = "+originalHeight+","+originalWidth);
+
+	$("#inkCanv").resizable({
+		resize: function(e,ui){
+	    	newWidth = ui.size.width;
+			newHeight = ui.size.height;
+	    	scale_x = newWidth/originalWidth;
+			scale_y = newHeight/originalHeight;
+	    	resizeObjects(ui.originalPosition,ui.originalSize,ui.position,ui.size,scale_x,scale_y);
+	    	originalWidth = newWidth;
+			originalHeight = newHeight;
+		},
+		disabled:true,
+	});
+	$("inkCanv").css({opacity:1});
 };
 
 function load_ink()
@@ -741,6 +780,11 @@ function marquee(rectN,rectE,rectS,rectW,rectC)
     this.rs=rectS;
     this.rw=rectW;
     this.rc=rectC;
+}
+
+function rel_dims(abs_dim,canv_dim)
+{
+	return parseFloat(abs_dim)/canv_dim;
 }
 
 function remove_all()
@@ -760,7 +804,7 @@ function remove_all()
 function set_mode(i)
 {
     i=parseInt(i);
-    if((i<1) || (i>3))
+    if((i<1) || (i>4))
     {
         mode=0;
     }
@@ -783,7 +827,14 @@ function set_mode(i)
         case 3:
             elt.innerHTML="mode: marquee";
             break;
+		case 4:
+			elt.innerHTML="mode: canvas";
+			break;
     }
+	if(mode < 4)
+	{
+	    setDraggable(false);
+	}
 }
 
 function set_up_icons()
@@ -973,4 +1024,108 @@ function update_ml_xy(str, canvasId)
         }
     }
     click=false;
+}
+
+/////////
+
+function manipCanvas()
+{
+	setDraggable(true);
+}
+
+function setDraggable(option)
+{
+	if(option === true)
+	{
+		set_mode(4);
+    	$("#inkCanv").draggable({disabled: false});
+    	$("#inkCanv").resizable({disabled: false});
+	}
+	else
+	{
+    	//console.log("set not draggable");
+    	$("#inkCanv").draggable({disabled: true});
+    	$("#inkCanv").resizable({disabled: true});
+    	//CSS bug, sets undraggable opacity to 0.35
+    	$("#inkCanv").css({opacity: 1});
+	}
+}
+
+function resizeObjects(orig_pos,orig_size,pos,size,scale_x,scale_y)
+{
+	//alert("hi");
+	paper.forEach(function(elt){
+		//alert("canv_height = "+canv_height);
+	    if(elt.data("type")!="path")
+	    {
+			elt.attr({
+				x:elt.attr("x")*scale_x,
+				y:elt.attr("y")*scale_y,
+				cx:elt.attr("cx")*scale_x,
+				cy:elt.attr("cy")*scale_y,
+				rx:elt.attr("rx")*scale_x,
+				ry:elt.attr("ry")*scale_y,
+				width:elt.attr("width")*scale_x,
+				height:elt.attr("height")*scale_y,
+			});
+			
+			if(elt.data("type")=="ellipse")
+			{
+				elt.data("currx",elt.attr("cx")-elt.attr("rx"));
+				elt.data("curry",elt.attr("cy")-elt.attr("ry"));
+				elt.data("curr_rx",elt.attr("rx"));
+				elt.data("curr_ry",elt.attr("ry"));
+			}
+			else
+			{
+				elt.data("currx",elt.attr("x"));
+				elt.data("curry",elt.attr("y"));
+			}
+		    var gl=elt.glow({"width":15,"color":"#33ff00","opacity":0.8});
+			gl.remove();
+		
+		
+		
+		
+			// document.getElementById("test_layers_div").innerHTML="scale = ("+scale_x+","+scale_y+")";
+			// 			var old_x=elt.data("currx");
+			// 			var old_y=elt.data("curry");
+			// 			var new_x=old_x*scale_x;
+			// 			var new_y=old_y*scale_y;
+			// 			document.getElementById("test_layers_div").innerHTML+="<br />oldattrx = "+elt.attr("x")+", oldattry"+elt.attr("y");
+			// 			document.getElementById("test_layers_div").innerHTML+="<br />oldbbox.wh = "+elt.getBBox().width+","+elt.getBBox().height;
+			// 			//elt.scale(scale_x,scale_y,0,0);
+			// 			document.getElementById("test_layers_div").innerHTML+="<br />newattrx = "+elt.attr("x")+", newattry"+elt.attr("y");
+			// 			document.getElementById("test_layers_div").innerHTML+="<br />newbbox.wh = "+elt.getBBox().width+","+elt.getBBox().height;
+			// 			document.getElementById("test_layers_div").innerHTML+="<br />elt.data(currx) = "+elt.data("currx");
+			// 			elt.data("currx",new_x);
+			// 			elt.data("curry",new_y);
+			// 			if(elt.data("type")=="ellipse")
+			// 			{
+			// 				var new_rx=elt.data("curr_rx")*scale_x;
+			// 				var new_ry=elt.data("curr_ry")*scale_y;
+			// 				elt.data("curr_rx",new_rx);
+			// 			    elt.data("curr_ry",new_ry);
+			// 			}
+			// 			var bbox=elt.getBBox();
+			// 			elt.attr({
+			// 				x:new_x,
+			// 				y:new_y,
+			// 				cx:bbox.x+bbox.width*0.5+(new_x-old_x)*0.5,
+			// 	            cy:bbox.y+bbox.height*0.5+(new_y-old_y)*0.5,
+			// 	            rx:bbox.width/2.0+(new_x-old_x)*0.5,
+			// 	            ry:bbox.height/2.0+(new_y-old_y)*0.5,
+			// 	            width:bbox.width+new_x-old_x,
+			// 	            height:bbox.height+new_y-old_y
+			// 			});
+			
+	    }
+	});
+	for(var i = 0; i < pathObjects.length; i++){
+	    pathObjects[i].scale(scale_x,scale_y,0,0);
+	}
+	for(var i = 0; i < xy.length; i++){
+	    xy[i][0] = xy[i][0] * scale_x;
+	    xy[i][1] = xy[i][1] * scale_y;
+	}
 }
