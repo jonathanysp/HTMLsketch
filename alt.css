@@ -51,6 +51,18 @@
     width:40px;
     height:40px;
 }
+#info_panel
+{
+	position:absolute;
+	top:150px;
+	left:960px;
+}
+#update_info_panel
+{
+	position:absolute;
+	top:210px;
+	left:960px;
+}
 #ink_to_load
 {
     position:absolute;

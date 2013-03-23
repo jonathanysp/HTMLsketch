@@ -116,7 +116,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
 	        var canvbx=parseInt($("#inkCanv").css("border-left"));
 	        var canvy=parseInt($("#inkCanv").css("top"));
 	        var canvby=parseInt($("#inkCanv").css("border-top"));
-	        
+
 	        // document.getElementById("test_layers_div").innerHTML="x = "+x+"<br /> \
 	        //                    relevant x = "+(bbox.x+bbox.width+canvx+canvbx)+"<br /> y = "+y+"<br /> \
 	        //                    relevant y = "+(bbox.y+bbox.height+canvy+canvby)+"<br /> canvx = "+canvx+"\
@@ -126,7 +126,7 @@ function add_attributes(elt,fillColor,fillOpacity,strokeColor,strokeOpacity,stro
             {
                 resize=1;
             }
-			
+
 	        gl.remove();
 	        noglow=1;
 	        this.animate({opacity:.25},500,"<>");
@@ -244,7 +244,7 @@ function add_marq_attributes(marq,marqFillColor,marqFillOpacity)
 		            width:xpos,
 		            height:bbox.height
 		        })
-		        
+
 		    }
 		    else
 		    {
@@ -742,10 +742,12 @@ function load()
 {
     iA=new inkAuthoring("inkCanv"); //buildcore buildexperiences in rin.tools.
     paper=iA.paper;
+	remove_all();
     datastring="";
     currpaths="";
     set_up_icons();
     set_mode(1);
+	click=false;
 
 	originalHeight = $("#inkCanv").height();
 	originalWidth = $("#inkCanv").width();
@@ -754,11 +756,15 @@ function load()
 
 	$("#inkCanv").resizable({
 		resize: function(e,ui){
+			document.getElementById("info_panel").innerHTML=parseFloat($("#inkCanv").css("width"))+","+parseFloat($("#inkCanv").css("height"))+"<br />";
+			document.getElementById("info_panel").innerHTML+=$("#inkCanv").width()+","+$("#inkCanv").height();
+			document.getElementById("info_panel").innerHTML+="<br />"+currpaths;
 	    	newWidth = ui.size.width;
 			newHeight = ui.size.height;
 	    	scale_x = newWidth/originalWidth;
 			scale_y = newHeight/originalHeight;
-	    	resizeObjects(ui.originalPosition,ui.originalSize,ui.position,ui.size,scale_x,scale_y);
+			currpaths = transform_pathstring(currpaths, scale_x, scale_y)
+	    	resizeObjects(scale_x,scale_y);
 	    	originalWidth = newWidth;
 			originalHeight = newHeight;
 		},
@@ -791,7 +797,7 @@ function remove_all()
 {
     //removes all Raphael elements from the canvas
     paper.remove();
-    paper=Raphael(document.getElementById("inkCanv"),500,500);
+    paper=Raphael(document.getElementById("inkCanv"),"100%","100%");
     ml=[];
     xy=[];
     paths=[];
@@ -876,9 +882,7 @@ function transform_pathstring(currpaths, trans_factor_x, trans_factor_y, rnd)
 {
 	//the trans_factors will be 1/w, 1/h if we are going from absolute to relative
 	//to keep representations short, currently only storing three decimal points
-	if(rnd==undefined){ rnd=0; }
-	else{ rnd=1; }
-	
+
 	var nums=currpaths.match(/[0-9.]+/g);
 	var newpath="";
 	var j=0, i=0, n=currpaths.length;
@@ -886,17 +890,8 @@ function transform_pathstring(currpaths, trans_factor_x, trans_factor_y, rnd)
 	{
 		if((currpaths[i]=="M") || (currpaths[i]=="L"))
 		{
-			if(rnd)
-			{
-				//alert(newpath);
-				newpath=newpath+currpaths[i]+Math.round(parseFloat(nums[j])*trans_factor_x)+",";
-				newpath+=Math.round(parseFloat(nums[j+1])*trans_factor_y);
-			}
-			else
-			{
-				newpath=newpath+currpaths[i]+(parseFloat(nums[j])*trans_factor_x).toFixed(3)+",";
-				newpath+=(parseFloat(nums[j+1])*trans_factor_y).toFixed(3);
-			}
+			newpath=newpath+currpaths[i]+(parseFloat(nums[j])*trans_factor_x).toFixed(6)+",";
+			newpath+=(parseFloat(nums[j+1])*trans_factor_y).toFixed(6);
 			j=j+2;
 		}
 	}
@@ -934,17 +929,19 @@ function update_datastring(canvid)
 	{
 		canvid="inkCanv";
 	}
-	var canv_height=parseInt($("#"+canvid).css("height"));
-	var canv_width=parseInt($("#"+canvid).css("width"));
+	var canv_height=parseFloat($("#"+canvid).css("height"));
+	var canv_width=parseFloat($("#"+canvid).css("width"));
+	document.getElementById("update_info_panel").innerHTML=canv_width+","+canv_height;
 	
     document.getElementById("test_layers_div").innerHTML="";
     datastring="";
-    if(currpaths!="")
+    if((currpaths!="") && (currpaths!=undefined))
     {
-	    var nound=currpaths;
+	    var no_und=currpaths;
 		if(currpaths.split("undefined").length>1)
-			nound=currpaths.split("undefined")[1]
-		var newpath=transform_pathstring(nound,1.0/canv_height,1.0/canv_width);
+			no_und=currpaths.split("undefined")[1];
+		document.getElementById("update_info_panel").innerHTML+="<br />"+no_und;
+		var newpath=transform_pathstring(no_und,1.0/canv_width,1.0/canv_height);
 		//alert("hi");
         var pth="PATH::[pathstring]"+newpath+pathattrs+"[]";
         //document.getElementById("test_layers_div").innerHTML+=pth+"<br />";
@@ -1051,7 +1048,7 @@ function setDraggable(option)
 	}
 }
 
-function resizeObjects(orig_pos,orig_size,pos,size,scale_x,scale_y)
+function resizeObjects(scale_x,scale_y)
 {
 	//alert("hi");
 	paper.forEach(function(elt){
@@ -1068,7 +1065,7 @@ function resizeObjects(orig_pos,orig_size,pos,size,scale_x,scale_y)
 				width:elt.attr("width")*scale_x,
 				height:elt.attr("height")*scale_y,
 			});
-			
+
 			if(elt.data("type")=="ellipse")
 			{
 				elt.data("currx",elt.attr("cx")-elt.attr("rx"));
@@ -1083,49 +1080,13 @@ function resizeObjects(orig_pos,orig_size,pos,size,scale_x,scale_y)
 			}
 		    var gl=elt.glow({"width":15,"color":"#33ff00","opacity":0.8});
 			gl.remove();
-		
-		
-		
-		
-			// document.getElementById("test_layers_div").innerHTML="scale = ("+scale_x+","+scale_y+")";
-			// 			var old_x=elt.data("currx");
-			// 			var old_y=elt.data("curry");
-			// 			var new_x=old_x*scale_x;
-			// 			var new_y=old_y*scale_y;
-			// 			document.getElementById("test_layers_div").innerHTML+="<br />oldattrx = "+elt.attr("x")+", oldattry"+elt.attr("y");
-			// 			document.getElementById("test_layers_div").innerHTML+="<br />oldbbox.wh = "+elt.getBBox().width+","+elt.getBBox().height;
-			// 			//elt.scale(scale_x,scale_y,0,0);
-			// 			document.getElementById("test_layers_div").innerHTML+="<br />newattrx = "+elt.attr("x")+", newattry"+elt.attr("y");
-			// 			document.getElementById("test_layers_div").innerHTML+="<br />newbbox.wh = "+elt.getBBox().width+","+elt.getBBox().height;
-			// 			document.getElementById("test_layers_div").innerHTML+="<br />elt.data(currx) = "+elt.data("currx");
-			// 			elt.data("currx",new_x);
-			// 			elt.data("curry",new_y);
-			// 			if(elt.data("type")=="ellipse")
-			// 			{
-			// 				var new_rx=elt.data("curr_rx")*scale_x;
-			// 				var new_ry=elt.data("curr_ry")*scale_y;
-			// 				elt.data("curr_rx",new_rx);
-			// 			    elt.data("curr_ry",new_ry);
-			// 			}
-			// 			var bbox=elt.getBBox();
-			// 			elt.attr({
-			// 				x:new_x,
-			// 				y:new_y,
-			// 				cx:bbox.x+bbox.width*0.5+(new_x-old_x)*0.5,
-			// 	            cy:bbox.y+bbox.height*0.5+(new_y-old_y)*0.5,
-			// 	            rx:bbox.width/2.0+(new_x-old_x)*0.5,
-			// 	            ry:bbox.height/2.0+(new_y-old_y)*0.5,
-			// 	            width:bbox.width+new_x-old_x,
-			// 	            height:bbox.height+new_y-old_y
-			// 			});
-			
 	    }
 	});
-	for(var i = 0; i < pathObjects.length; i++){
-	    pathObjects[i].scale(scale_x,scale_y,0,0);
-	}
 	for(var i = 0; i < xy.length; i++){
 	    xy[i][0] = xy[i][0] * scale_x;
 	    xy[i][1] = xy[i][1] * scale_y;
+	}
+	for(var i = 0; i < pathObjects.length; i++){
+	    pathObjects[i].scale(scale_x,scale_y,0,0);
 	}
 }
