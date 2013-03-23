@@ -1,0 +1,171 @@
+#inkCanv
+{
+	position:absolute;
+	left:10px;
+	top:25px;
+	height:500px;
+	width:500px;
+	border:1px solid blue;
+	z-index:0
+}
+#clear_button
+{
+    position:absolute;
+    top:500px;
+    left:550px;
+    width:80px;
+    height:40px;
+}
+.color_option
+{
+    margin:5px;
+    width:50px;
+}
+.color_options
+{
+    position:absolute;
+    top:530px;
+    left:700px;
+}
+#draw_options
+{
+    position:absolute;
+    top:120px;
+    left:550px;
+}
+#ellipse_button
+{
+    position:absolute;
+    top:20px;
+    left:690px;
+    width:80px;
+    height:40px;
+}
+#eraser_button
+{
+    position:absolute;
+    top:70px;
+    left:550px;
+    padding-top:4px;
+    padding-left:3px;
+    width:40px;
+    height:40px;
+}
+#info_panel
+{
+	position:absolute;
+	top:150px;
+	left:960px;
+}
+#update_info_panel
+{
+	position:absolute;
+	top:210px;
+	left:960px;
+}
+#ink_to_load
+{
+    position:absolute;
+    top:470px;
+    left:550px;
+    width:250px;
+    height:20px;
+}
+#load_input_ink
+{
+    position:absolute;
+    top:470px;
+    left:810px;
+    width:80px;
+    height:25px;
+}
+#manip_canvas_button
+{
+	position:absolute;
+	top:70px;
+	left:960px;
+	padding-top:4px;
+    padding-left:3px;
+    width:170px;
+    height:40px;
+}
+#manip_marquee_button
+{
+    position:absolute;
+    top:70px;
+    left:780px;
+    padding-top:4px;
+    padding-left:3px;
+    width:170px;
+    height:40px;
+}
+#manip_shapes_button
+{
+    position:absolute;
+    top:70px;
+    left:600px;
+    padding-top:4px;
+    padding-left:3px;
+    width:170px;
+    height:40px;
+}
+#marquee_button
+{
+    position:absolute;
+    top:20px;
+    left:780px;
+    width:80px;
+    height:40px;
+}
+#mode_div
+{
+    position:absolute;
+    top:550px;
+    left:400px;
+}
+.options
+{
+	position:absolute;
+	top:600px;
+	left:600px;
+}
+#pen_button
+{
+    position:absolute;
+    top:20px;
+    left:550px;
+    padding-top:4px;
+    padding-left:3px;
+    width:40px;
+    height:40px;
+}
+#rect_button
+{
+    position:absolute;
+    top:20px;
+    left:600px;
+    width:80px;
+    height:40px;
+}
+#show_datastring_button
+{
+    position:absolute;
+    top:420px;
+    left:550px;
+    width:80px;
+    height:40px;
+}
+#test_layers_div
+{
+    position:absolute;
+    top:580px;
+    left:20px;
+}
+#toggle_marquees_button
+{
+    position:absolute;
+    top:20px;
+    left:870px;
+    width:80px;
+    height:40px;
+}

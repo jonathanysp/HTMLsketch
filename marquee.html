@@ -81,67 +81,79 @@
 	.resizable({disabled: true})
 	.css({opacity: 1});
     
-    $("#canvas").mousedown(function(e){
-	if(mode === 4){
-	    return
-	}
-	click = true;
-	switch(mode) {
-	case 0:
-	    ml.push('M');
-	    xy.push([e.offsetX,e.offsetY]);
-	    break;
-	case 1:
-	    rect = createRect();
-	    rectX = e.offsetX;
-	    rectY = e.offsetY;
-	    break;
-	case 2:
-	    spot = createSpot();
-	    rectX = e.offsetX;
-	    rectY = e.offsetY;
-	    break;
-	case 3:
-	    erase([e.offsetX,e.offsetY]);
-	    break;
-	}
-    }).mouseup(function(){
-	if(mode === 4){
-	    return
-	}
-	click = false;
-    }).mouseleave(function(){
-	if(mode === 4){
-	    return
-	}
-	if(click === true){
+    $("#canvas").mousedown(function(e)
+    {
+	    if(mode === 4)
+    	{
+    	    return
+    	}
+	    click = true;
+	    switch(mode)
+    	{
+    	case 0:
+    	    ml.push('M');
+    	    xy.push([e.offsetX,e.offsetY]);
+    	    break;
+    	case 1:
+    	    rect = createRect();
+    	    rectX = e.offsetX;
+    	    rectY = e.offsetY;
+    	    break;
+    	case 2:
+    	    spot = createSpot();
+    	    rectX = e.offsetX;
+    	    rectY = e.offsetY;
+    	    break;
+    	case 3:
+    	    erase([e.offsetX,e.offsetY]);
+    	    break;
+    	}
+    }).mouseup(function()
+    {
+	    if(mode === 4)
+    	{
+    	    return
+    	}
 	    click = false;
-	}
-    }).mousemove(function(e){
-	if(mode === 4){
-	    return
-	}
-	$("#canvas").css('cursor','crosshair');
-	if(click === false)
-	    return;
-	switch(mode){
-	case 0:
-	    ml.push('L');
-	    xy.push([e.offsetX,e.offsetY]);
-	    drawPaths();
-	    break;
-	case 1:	
-	    updateRect(rect, rectX, rectY, e.offsetX, e.offsetY);
-	    break;
-	case 2:
-	    updateSpot(spot, rectX, rectY, e.offsetX, e.offsetY);
-	    break;
-	case 3:
-	    erase([e.offsetX,e.offsetY]);
-	    break;
-	}
-    }).hover(function(e){
-	$("#canvas").css('cursor', "pointer")
+    }).mouseleave(function()
+    {
+	    if(mode === 4)
+    	{
+    	    return
+    	}
+	    if(click === true)
+    	{
+    	    click = false;
+    	}
+    }).mousemove(function(e)
+    {
+	    if(mode === 4)
+    	{
+    	    return
+    	}
+	    $("#canvas").css('cursor','crosshair');
+    	if(click === false)
+    	    return;
+    	switch(mode)
+    	{
+    	case 0:
+    	    ml.push('L');
+    	    xy.push([e.offsetX,e.offsetY]);
+    	    drawPaths();
+    	    break;
+    	case 1:	
+    	    updateRect(rect, rectX, rectY, e.offsetX, e.offsetY);
+    	    break;
+    	case 2:
+    	    updateSpot(spot, rectX, rectY, e.offsetX, e.offsetY);
+    	    break;
+    	case 3:
+    	    erase([e.offsetX,e.offsetY]);
+    	    break;
+    	}
+    }).hover(function(e)
+    {
+	    $("#canvas").css('cursor', "pointer")
 	});
     
     function setmode(new_mode){
@@ -152,37 +164,37 @@
 	console.log("mode set to: " + mode);
     };
        
-    function drawPaths(){
-	var paths;
-	//removes all objects in pathObjects to be redrawn
-	var len = pathObjects.length;
-	for(var i = 0; i < pathObjects.length; i++){
-	    pathObjects[i].remove();
-	}
-	for(var i = 0; i < len; i++){
-	    pathObjects.shift();
-	}
-	for(var i = 0; i < ml.length; i ++){
-	    if(ml[i] !== 'X'){
-		paths += ml[i] + xy[i][0] + ',' + xy[i][1];;
-	    }
-	}
-	if(paths.length > 0){
-	    var path = paths.split('M');
-	    //console.log(path);
-	    //console.log(path.length-1);
-	}
-	for(var i = 1; i < path.length; i++){
-	    var drawing = paper.path('M'+path[i]);
-	    drawing.attr({
-	    "stroke-width": strokeWidth,
-	    "stroke-opacity": opacity,
-	    "stroke-linejoin":"round",
-	    "stroke-linecap":"round"
-	    })
-	    pathObjects.push(drawing);
-	}
-	//console.log(pathObjects.length);	    
+    function drawPaths()
+    {
+	    var paths;
+    	//removes all objects in pathObjects to be redrawn
+    	var len = pathObjects.length;
+    	for(var i = 0; i < pathObjects.length; i++){
+    	    pathObjects[i].remove();
+    	}
+    	for(var i = 0; i < len; i++){
+    	    pathObjects.shift();
+    	}
+    	for(var i = 0; i < ml.length; i ++){
+    	    if(ml[i] !== 'X'){
+    		paths += ml[i] + xy[i][0] + ',' + xy[i][1];;
+    	    }
+    	}
+    	if(paths.length > 0){
+    	    var path = paths.split('M');
+    	    //console.log(path);
+    	    //console.log(path.length-1);
+    	}
+    	for(var i = 1; i < path.length; i++){
+    	    var drawing = paper.path('M'+path[i]);
+    	    drawing.attr({
+    	    "stroke-width": strokeWidth,
+    	    "stroke-opacity": opacity,
+    	    "stroke-linejoin":"round",
+    	    "stroke-linecap":"round"
+    	    })
+    	    pathObjects.push(drawing);
+	    }	    
     }
     
     function clearPaths(){
@@ -264,27 +276,27 @@
 	});
     }
     
-    function erase(location){
-	var range = 10
-	//console.log("searching " + location[0] + ',' + location[1]);
-	for(var i = 0; i < xy.length; i++){
-	    if(location[0] - range <= xy[i][0] && xy[i][0] <= location[0] + range){
-		if(location[1] - range <= xy[i][1] && xy[i][1] <= location[1] + range){
-		    console.log("MATCH FOUND");
-		    if(ml[i+1] === 'L'){
-			ml[i+1] = 'M';
-		    }
-		    ml.splice(i,1);
-		    xy.splice(i,1);
-		    
-		    //ml[i] = 'X';
-		    //if(ml[i+1] === 'L'){
-			//ml[i+1] = 'M';
-		    //}
-		    drawPaths();
-		}
+    function erase(location)
+    {
+	    var range = 10
+	    //console.log("searching " + location[0] + ',' + location[1]);
+	    for(var i = 0; i < xy.length; i++)
+	    {
+	        if(location[0] - range <= xy[i][0] && xy[i][0] <= location[0] + range)
+	        {
+		        if(location[1] - range <= xy[i][1] && xy[i][1] <= location[1] + range)
+		        {
+		            console.log("MATCH FOUND");
+		            if(ml[i+1] === 'L')
+		            {
+			            ml[i+1] = 'M';
+		            }
+		            ml.splice(i,1);
+		            xy.splice(i,1);
+		            drawPaths();
+		        }
+	        }
 	    }
-	}
     }
     
     function setDraggable(option){

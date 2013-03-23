@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Drawing Tool</title>
+<head>
+	<meta charset="utf-8">
+    <script src="jquery.js"></script>
+	<script src="raphael.js"></script>
+    <script src="jquery-ui/js/jquery-ui-1.8.18.custom.min.js"></script>
+	<script src="alt2.js"></script>
+	<link rel="stylesheet" type="text/css" href="alt.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+</head>
+
+<body>
+<div id="inkCanv"></div>
+
+<div id="info_panel"></div>
+<div id="update_info_panel"></div>
+
+<button id="pen_button" class="tool_button" type="button"
+        onclick="set_mode(1)">pen</button>
+        
+<button id="rect_button" class="tool_button" type="button"
+        onclick="add_rectangle()">+ rect</button>
+
+<button id="ellipse_button" class="tool_button" type="button"
+        onclick="add_ellipse()">+ ellipse</button>
+        
+<button id="marquee_button" class="tool_button" type="button"
+        onclick="add_marquee()">+ marquee</button>
+        
+<button id="toggle_marquees_button" class="tool_button" type="button"
+        onclick="toggle_marquees()">toggle marquees</button>
+    
+        
+<button id="manip_shapes_button" class="tool_button" type="button"
+        onclick="set_mode(0)">manipulate shapes</button>
+        
+<button id="manip_marquee_button" class="tool_button" type="button"
+        onclick="set_mode(3)">manipulate marquee</button>
+        
+<button id="eraser_button" class="tool_button" type="button"
+        onclick="set_mode(2)">erase</button>
+    
+<button id="manip_canvas_button" class="tool_button" type="button"
+        onclick="manipCanvas()">manipulate canvas</button>
+
+<div id="draw_options">
+    Pen color:        
+    <input id="pen_color" class="color_input" type="text" onchange="iA.updatePenColor('pen_color')"
+            value="000000" />
+    <br />
+    Pen opacity:
+    <input id="pen_opacity" class="color_input" type="text" onchange="iA.updatePenOpacity('pen_opacity')"
+            value="1" />
+    <br />
+    Pen width:
+    <input id="pen_width" class="color_input" type="text" onchange="iA.updatePenWidth('pen_width')"
+            value="10" />
+    <br />
+    Eraser width:
+    <input id="eraser_width" class="color_input" type="text" onchange="iA.updateEraserWidth('eraser_width')"
+            value="5" />
+    <br />
+    Shape stroke width:        
+    <input id="shape_stroke_width" class="color_input" type="text" onchange="iA.updateShapeStrokeWidth('shape_stroke_width')"
+            value="3" />
+    <br />
+    Shape stroke color:
+    <input id="shape_stroke_color" class="color_input" type="text" onchange="iA.updateShapeStrokeColor('shape_stroke_color')"
+            value="000000" />
+    <br />
+    Shape stroke opacity:        
+    <input id="shape_stroke_opacity" class="color_input" type="text" onchange="iA.updateShapeStrokeOpacity('shape_stroke_opacity')"
+            value="1" />
+    <br />
+    Shape fill color:        
+    <input id="shape_fill_color" class="color_input" type="text" onchange="iA.updateShapeFillColor('shape_fill_color')"
+            value="ffff00" />
+    <br />
+    Shape fill opacity:        
+    <input id="shape_fill_opacity" class="color_input" type="text" onchange="iA.updateShapeFillOpacity('shape_fill_opacity')"
+            value="0" />
+    <br />
+    Marquee fill:
+    <input id="marq_color" class="color_input" type="text" onchange="iA.updateMarqueeColor('marq_color')"
+            value="222222" />
+    <br />
+    Marquee opacity:
+    <input id="marq_opacity" class="color_input" type="text" onchange="iA.updateMarqueeOpacity('marq_opacity')"
+            value=".8" />
+</div>
+
+<div id="mode_div">mode: shapes</div>
+
+<button id="show_datastring_button" type="button"
+        onclick='update_datastring()'>Show Data</button>
+
+<input id="ink_to_load" type="text" placeholder="paste ink data string here" />
+<button id="load_input_ink" type="button"
+        onclick='load_ink()'>Load Ink</button>
+
+<button id="clear_button" type="button"
+        onclick='remove_all()'>Clear All</button>
+
+<div id="test_layers_div"><div>
+</body>
+</html>

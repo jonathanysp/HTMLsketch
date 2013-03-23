@@ -12,3 +12,12 @@ This is a drawing tool I created for LADS, a project I was working on with the B
  - Allow resizing of shapes
  - Better layer manipulation
  - More drawing options
+ 
+ # alt.html README
+ =================
+ The alt.html file contains modified drawing tools. Drawing is not done in layers, so arbitrary numbers
+ of rectangles and ellipses are allowed. Shapes can be dragged and resized (by dragging the lower right corner
+ of the shape). Similar to the marquee.html file, there is a marquee tool. Marquees can be manipulated in the
+ same way as rectangles and ellipses. Multiple marquees can be applied, but since marquees completely cover
+ the canvas, it is impossible to manipulate any but the most recent. The settings for the drawing tools are
+ provided by the user.

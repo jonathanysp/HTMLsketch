@@ -22,6 +22,7 @@ function rect_tool(id){
 		//console.log("mouse up!");
 		e.data.click = false;
 		e.data.drawn = true;
+	
 	}).mouseleave(this,function(e){
 		//disabled becuase of IE bug which thinks
 		//hitting raphael objects is a mouseleave
@@ -32,10 +33,12 @@ function rect_tool(id){
 		if(e.data.click === true && e.data.drawn == false){
 		    //e.offsetX = undefined workaround for FF
 		    //DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 		    if(!e.offsetX){
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-			e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+		        var bord=document.getElementById("rect").style.border;
+		        var bordpx=parseInt(bord);
+			    e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+			    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.update(e.data.rectX,e.data.rectY,e.offsetX,e.offsetY);
 		}
@@ -43,19 +46,32 @@ function rect_tool(id){
 };
 function rect_create(e){
 	this.rect = this.paper.rect(0,0,0,0);
+	var strokecolor=document.getElementById("strokecolor").value;
+	var fillcolor=document.getElementById("fillcolor").value;
+	if(strokecolor.length!=6)
+	{
+	    strokecolor="000000";
+	}
+	if(fillcolor.length!=6)
+	{
+	    fillcolor="ffffff";
+	}
 	this.rect.attr({
-		"stroke-width":3,
+		"stroke-width":"3",
 		"stroke-opacity":1,
-		"fill-opacity":0,
-		"fill":"white"
+		"stroke":"#"+strokecolor,
+		"fill-opacity":.5,
+		"fill":"#"+fillcolor
 	});
 	this.rect.drag(this.move, this.start, this.stop, this, this, this);
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	    var bord=document.getElementById("rect").style.border;
+        var bordpx=parseInt(bord);
+	e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+	e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	this.rectX = e.offsetX;
 	this.rectY = e.offsetY;
@@ -71,7 +87,7 @@ function rect_update(startX, startY, endX, endY){
 function rect_start(){
 	this.rect.ox = this.rect.attr("x");
 	this.rect.oy = this.rect.attr("y");
-	this.rect.animate({opacity:.25},500,">");
+	this.rect.animate({opacity:.25},500,"<>");
 };
 function rect_move(dx,dy){
 	this.rect.attr({
@@ -80,7 +96,7 @@ function rect_move(dx,dy){
 	});
 };
 function rect_stop(){
-	this.rect.animate({opacity: 1}, 500, ">");
+	this.rect.animate({opacity: 1}, 500, "<>");
 };
 function rect_delete(){
 	this.rect.remove();
@@ -119,10 +135,12 @@ function ellipse_tool(id){
 	    if(e.data.click === true && e.data.drawn === false){
 		//e.offsetX = undefined workaround for FF
 		//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-		//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+		//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 		if(!e.offsetX){
-		    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-		    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+		    var bord=document.getElementById("ellipse").style.border;
+	        var bordpx=parseInt(bord);
+		    e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+		    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		}
 		e.data.update(e.data.startX, e.data.startY, e.offsetX, e.offsetY);
 	    }
@@ -130,19 +148,32 @@ function ellipse_tool(id){
 };
 function ellipse_create(e){
 	this.ellipse = this.paper.ellipse(0,0,0,0);
+	var strokecolor=document.getElementById("strokecolor").value;
+	var fillcolor=document.getElementById("fillcolor").value;
+	if(strokecolor.length!=6)
+	{
+	    strokecolor="000000";
+	}
+	if(fillcolor.length!=6)
+	{
+	    fillcolor="ffffff";
+	}
 	this.ellipse.attr({
-		"stroke-width": 3,
-		"stroke-opacity": 1,
-		"fill-opacity": 0,
-		"fill":"white"
+		"stroke-width":"3",
+		"stroke-opacity":1,
+		"stroke":"#"+strokecolor,
+		"fill-opacity":.5,
+		"fill":"#"+fillcolor
 	});
 	this.ellipse.drag(this.move, this.start, this.stop, this, this, this);
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	    var bord=document.getElementById("ellipse").style.border;
+        var bordpx=parseInt(bord);
+	    e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	this.startX = e.offsetX;
 	this.startY = e.offsetY;
@@ -196,10 +227,12 @@ function pen_tool(id){
 		if(e.data.erase_mode){
 		    //e.offsetX = undefined workaround for FF
 		    //DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+		    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 		    if(!e.offsetX){
-			e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-			e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+		    var bord=document.getElementById("pen").style.border;
+		    var bordpx=parseInt(bord);
+			e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 		    }
 		    e.data.erase([e.offsetX,e.offsetY]);
 		}
@@ -216,17 +249,19 @@ function pen_tool(id){
 			if(e.data.erase_mode == true){
 			    //e.offsetX = undefined workaround for FF
 			    //DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-			    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+			    //IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 			    if(!e.offsetX){
-			    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-			    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+			    var bord=document.getElementById("pen").style.border;
+    		    var bordpx=parseInt(bord);
+    			e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+    			e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 			    }
 			    e.data.erase([e.offsetX,e.offsetY]);
 			}
 			else{
 				e.data.pen_move(e)
 			}
-		}
+		} 
 	});
 };
   
@@ -234,20 +269,24 @@ function pen_down(e){
 	e.data.ml.push('M');
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+        var bord=document.getElementById("pen").style.border;
+        var bordpx=parseInt(bord);
+	e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+	e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}	
 	e.data.xy.push([e.offsetX,e.offsetY]);
 }
 function pen_move(e){
 	//e.offsetX = undefined workaround for FF
 	//DOES NOT TAKE INTO ACCOUNT BORDERS OFFSET
-	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF
+	//IF BORDER IS LARGE, THE DRAWINGS WILL BE OFF (FIXED)
 	if(!e.offsetX){
-	    e.offsetX = (e.pageX - $(e.delegateTarget).position().top);
-	    e.offsetY = (e.pageY - $(e.delegateTarget).position().top);
+	        var bord=document.getElementById("pen").style.border;
+	        var bordpx=parseInt(bord);
+		e.offsetX = (e.pageX - $(e.delegateTarget).position().left-bordpx);
+		e.offsetY = (e.pageY - $(e.delegateTarget).position().top-bordpx);
 	}
 	e.data.ml.push('L');
 	e.data.xy.push([e.offsetX,e.offsetY]);
@@ -277,9 +316,17 @@ function pen_draw(){
 		this.pathArray = this.paths.split('M')
 	}
 	//console.log("split into paths");
+	
+	var strokecolor=document.getElementById("strokecolor").value;
+	if(strokecolor.length!=6)
+	{
+	    strokecolor="000000";
+	}
+	
 	for(var i = 1; i < this.pathArray.length; i++){
 		this.pathObjects[i-1] = this.paper.path('M'+this.pathArray[i]);
 		this.pathObjects[i-1].attr({
+		    "stroke":"#"+strokecolor,
 			"stroke-width": 3,
 			"stroke-opacity": 1,
 			"stroke-linejoin":"round",
